@@ -5,8 +5,7 @@ It is supposed to run on a Raspberry Pi.
 
 <h2>Setup</h2>
 
-How to setup a working Sprinkler application.<br>
-<br>
+How to setup a working Sprinkler application.
 
 <h4>Raspbian</h4>
 <ol>
