@@ -1,6 +1,8 @@
 from django.db import models
 from django.forms import ModelForm
 from django import forms
+from django.contrib.auth.models import User
+
 import datetime
 
 # Status Choices for Plans & Devices
@@ -29,6 +31,7 @@ class CommonInfo(models.Model):
 class Device(CommonInfo):
     contr_id = models.IntegerField()
     device_type = None
+    device_type_id = None 
 
     class Meta:
         abstract = True
@@ -59,7 +62,6 @@ class Sensor(Device):
     curr_active = models.BooleanField(default=False)
     device_type = 'Sensor'
     moisture = None
-    moisture_threshold = models.DecimalField(max_digits=5, decimal_places=2)
 
 
 class SensorForm(forms.ModelForm):
@@ -72,14 +74,13 @@ class SensorForm(forms.ModelForm):
 
     class Meta:
         model = Sensor
-        fields = ['name', 'contr_id', 'moisture_threshold']
+        fields = ['name', 'contr_id']
 
 
 class Valve(Device):
     curr_active = models.BooleanField(default=False)
     device_type = 'Ventil'
     valve_counter = None
-    valve_threshold = models.IntegerField(default=100)
     sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
 
@@ -94,7 +95,7 @@ class ValveForm(forms.ModelForm):
 
     class Meta:
         model = Valve
-        fields = ['name', 'contr_id', 'valve_threshold', 'sensor_fk', 'pump_fk']
+        fields = ['name', 'contr_id', 'sensor_fk', 'pump_fk']
 
 
 # Sprinkler Model
@@ -121,7 +122,11 @@ class SprinklerForm(forms.ModelForm):
 
 
 class Plan(CommonInfo):
-    description = models.CharField(max_length=3000, default="Beschreibung")
+    is_active_plan = models.BooleanField(default=False)
+    description = models.CharField(max_length=3000)
+
+    valve_threshold = models.IntegerField(default=100)
+    moisture_threshold = models.DecimalField(max_digits=5, decimal_places=2, default=100)
 
     automation_rain = models.BooleanField(default=False)
     timespace_rain_forecast = models.IntegerField(default=24) # Standardwert 24h für forecast beachten
@@ -209,7 +214,7 @@ class PlanForm(forms.ModelForm):
 
     class Meta:
         model = Plan
-        fields = ['name', 'description', 'automation_rain', 'timespace_rain_forecast', 'automation_sensor', 'valve']
+        fields = ['name', 'description', 'valve_threshold', 'moisture_threshold', 'automation_rain', 'timespace_rain_forecast', 'automation_sensor', 'valve']
 
 
 class Schedule(models.Model):
@@ -331,3 +336,71 @@ class ScheduleForm(forms.ModelForm):
                   'allow_friday', 'allow_saturday', 'allow_sunday', 'allow_time_start', 'allow_time_stop',
                   'deny_monday', 'deny_tuesday', 'deny_wednesday', 'deny_thursday',
                   'deny_friday', 'deny_saturday', 'deny_sunday', 'deny_time_start', 'deny_time_stop']
+
+class Location(models.Model):
+    """ Location Model """
+    city = models.CharField(max_length=200, blank=True)
+    town = models.CharField(max_length=200, blank=True)
+    village = models.CharField(max_length=200, blank=True)
+    municipality = models.CharField(max_length=200, blank=True)
+    county = models.CharField(max_length=200, blank=True)
+    state = models.CharField(max_length=200, blank=True)
+    country = models.CharField(max_length=200, blank=True)
+    country_code = models.CharField(max_length=2, blank=True)
+    utc_offset = models.IntegerField(blank=True)
+    latitude = models.DecimalField(max_digits=7, decimal_places=5)
+    longitude = models.DecimalField(max_digits=7, decimal_places=5)
+
+    def __str__(self):
+        name = ''
+        if self.city != '':
+            name = name + self.city + ', '
+        if self.town != '':
+            name = name + self.town + ', '
+        if self.village != '':
+            name = name + self.village + ', '
+        if self.municipality != '':
+            name = name + self.municipality + ', '
+        if self.county != '':
+            name = name + self.county + ', '
+        if self.state != '':
+            name = name + self.state + ', '
+        if self.country != '':
+            name = name + self.country
+        return name
+
+
+class WeatherStatus(models.Model):
+    """ WeatherStatus Model """
+    owm_id = models.IntegerField()
+    name = models.CharField(max_length=32)
+    description = models.CharField(max_length=128)
+    icon = models.CharField(max_length=3)
+
+    def __str__(self):
+        return str(self.owm_id)
+
+
+class WeatherData(models.Model):
+    """ WeatherData Model """
+    reference_time = models.DateTimeField()
+    last_update_time = models.DateTimeField()
+    reception_time = models.DateTimeField()
+    location_fk = models.ForeignKey(Location, on_delete=models.CASCADE)
+    humidity = models.IntegerField()
+    pressure = models.IntegerField()
+    rain = models.DecimalField(max_digits=4, decimal_places=2)
+    temperature = models.DecimalField(max_digits=4, decimal_places=2)
+    wind = models.DecimalField(max_digits=4, decimal_places=2)
+
+    weather_status_fk = models.ForeignKey(WeatherStatus, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        self.last_update_time = datetime.datetime.now()
+        super().save(*args, **kwargs)
+
+
+class UserSettings(models.Model):
+    """ UserSettings Model """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    owm_api_key = models.CharField(max_length=32, blank=True)

@@ -14,4 +14,12 @@ from .models import *
 
 #admin.site.register(Schedule)
 
+admin.site.register(Location)
+
+admin.site.register(WeatherData)
+
+admin.site.register(UserSettings)
+
+admin.site.register(WeatherStatus)
+
 admin.site.site_header = "Sprinkler User-Verwaltung"

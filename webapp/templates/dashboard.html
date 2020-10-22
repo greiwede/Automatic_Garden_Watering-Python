@@ -15,7 +15,12 @@
           {% if location_county %}
           {{ location_county }}, 
           {% endif %}
-          {{ location_state }} | 🌡 19°C | 🌥 Bewölkt</p>
+          {{ location_state }}
+          {{ location_country }}
+          {% if temperature %}
+           | 🌡 {{ temperature|floatformat:"1" }}°C
+          {% endif %}
+           | 🌥 Bewölkt</p>
         
       </div>
 

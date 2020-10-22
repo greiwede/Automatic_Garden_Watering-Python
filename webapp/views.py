@@ -6,12 +6,21 @@ from django.template.response import TemplateResponse
 from django.forms import inlineformset_factory
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
 
 import json
 
 from .models import *
 
 from geopy.geocoders import Nominatim
+
+from pyowm.owm import OWM
+
+from datetime import datetime, timedelta
+
+from timezonefinder import TimezoneFinder
+
+from pytz import timezone, utc
 
 # Create your views here.
 
@@ -35,9 +44,6 @@ def dashboard(request):
     next_allowed_start_date_time = None
     for plan in plans:
         plan_next_allowed_start_date_time = plan.get_next_allowed_start_date_time()
-        print("-----------------------Anfang------------------------")
-        print(plan)
-        print(plan.get_pumps_to_be_activated())
         if next_allowed_start_date_time == None:
             next_allowed_start_date_time = plan_next_allowed_start_date_time
         elif plan_next_allowed_start_date_time == None:
@@ -53,24 +59,31 @@ def dashboard(request):
         args['water_time_minute'] = str("{:02d}".format(next_allowed_start_date_time.minute))
 
     # Get location data
-    with open('user_settings.json', 'r') as f:
-            user_config = json.load(f)
+    try:
+        loc = Location.objects.all()[:1][0]
 
-    geolocator = Nominatim(user_agent="openmapquest", timeout=3)
-    location = geolocator.reverse('{}, {}'.format(user_config['latitude'], user_config['longitude']), language='de')
-    address = location.raw['address']
-    if 'city' in location.raw['address']:
-        args['location_town'] = location.raw['address']['city']    
-    elif 'town' in location.raw['address']:
-        args['location_town'] = location.raw['address']['town']
-    elif 'village' in location.raw['address']:
-        args['location_town'] = location.raw['address']['village']
-    elif 'municipality' in location.raw['address']:
-        args['location_town'] = location.raw['address']['municipality']
-    if 'county' in location.raw['address']:
-        args['location_county'] = location.raw['address']['county']
-    args['location_state'] = location.raw['address']['state']
-    args['location_country'] = location.raw['address']['country']
+        if loc.city != '':
+            args['location_town'] = loc.city    
+        elif loc.town != '':
+            args['location_town'] = loc.town
+        elif loc.village != '':
+            args['location_town'] = loc.village
+        elif loc.municipality != '':
+            args['location_town'] = loc.municipality
+        if loc.county != '':
+            args['location_county'] = loc.county
+        if loc.state != '':
+            args['location_state'] = loc.state
+        if loc.country != '':
+            args['location_country'] = loc.country
+    except:
+        pass
+
+    try:
+        weather = WeatherData.objects.latest('reference_time')
+        args['temperature'] = weather.temperature
+    except:
+        pass
 
     return TemplateResponse(request, "dashboard.html", args)
 
@@ -388,30 +401,123 @@ def weather(request):
 
 @login_required(login_url='/admin/login/')
 def settings(request):
-    # Read user config from config file
-    with open('user_settings.json', 'r') as f:
-            user_config = json.load(f)
+    def get_location_data(lat, lon, loc):
+        lat = float(lat)
+        lon = float(lon)
 
+        loc.latitude = lat
+        loc.longitude = lon
+       
+        geolocator = Nominatim(user_agent="openmapquest", timeout=3)
+        location = geolocator.reverse('{}, {}'.format(lat, lon), language='de')
+        address = address = location.raw['address']
+        if 'city' in address:
+            loc.city = address['city']    
+        elif 'town' in address:
+            loc.town = address['town']
+        elif 'village' in address:
+            loc.village = address['village']
+        elif 'municipality' in address:
+            loc.municipality = address['municipality']
+        if 'county' in address:
+            loc.county = address['county']
+        if 'state' in address:
+            loc.state = address['state']
+        if 'country' in address:
+            loc.country = address['country']
+        
+        # Get UTC offset of the location
+        today = datetime.now()
+        tf = TimezoneFinder()
+        tz_target = timezone(tf.certain_timezone_at(lat=lat, lng=lon))
+        today_target = tz_target.localize(today)
+        today_utc = utc.localize(today)
+        loc.utc_offset = int((today_utc - today_target).total_seconds() / 3600)
+
+        return loc
+
+    # Start of main functionality
     args = {}
+
+    request_latitude = request.POST.get('latitude')
+    request_longitude = request.POST.get('longitude')
+
+    if request_latitude == None or request_longitude == None:
+        # When attributes are not given
+        try:
+            loc = Location.objects.all()[:1][0]
+            
+            args['filter_latitude'] = str(loc.latitude)
+            args['filter_longitude'] = str(loc.longitude)
+            args['location_name'] = loc.__str__()
+        except:
+            args['filter_latitude'] = ''
+            args['filter_longitude'] = ''
+    elif request_latitude == '' and request_longitude == '':
+        # No Location given. Delete existing Location and make fiels empty
+        print("no location given")
+        try:
+            loc = Location.objects.all()[:1][0]
+            loc.delete()
+        except:
+            pass
+        args['filter_latitude'] = request_latitude
+        args['filter_longitude'] = request_longitude
+    elif request_latitude == '' or request_longitude == '' or float(request_latitude) < -90 or float(request_latitude) > 90 or float(request_longitude) < -180 or float(request_longitude) > 180:
+        # Invalid Coordinates
+        args['error'] = "Eingegebene Koordinaten fehlerhaft."
+
+        args['filter_latitude'] = request_latitude
+        args['filter_longitude'] = request_longitude
+    else:
+        # If location exists get it - otherwise create one
+        try:
+            loc = Location.objects.all()[:1][0]
+            loc.delete()
+            
+            loc = get_location_data(request_latitude, request_longitude, Location())
+            loc.save()
+            malte(request)
+        except:
+            loc = get_location_data(request_latitude, request_longitude, Location())
+            loc.save()
+            malte(request)
+        args['filter_latitude'] = str(loc.latitude)
+        args['filter_longitude'] = str(loc.longitude)
+        args['location_name'] = loc.__str__()
+    
+    # API-Key Settings
+    if request.POST.get('owmAPIKey') == None:
+        user = User.objects.get(username__exact=request.user.username)
+        if hasattr(user, 'usersettings'):
+            args['filter_owm_api_key'] = user.usersettings.owm_api_key
+        else:
+            args['filter_owm_api_key'] = ''
+
+    elif request.POST.get('owmAPIKey') == '':
+        user = User.objects.get(username__exact=request.user.username)
+        if hasattr(user, 'usersettings'):
+            user_settings = user.usersettings
+            user_settings.owm_api_key = ''
+            user_settings.save() 
+        args['filter_owm_api_key'] = ''
+    else:
+        try:
+            user = User.objects.get(username__exact=request.user.username)
+            if hasattr(user, 'usersettings'):
+                user_settings = user.usersettings
+                user_settings.owm_api_key = request.POST.get('owmAPIKey')
+                user_settings.save() 
+            else:
+                user_settings = UserSettings.objects.create(user=user, owm_api_key=request.POST.get('owmAPIKey'))
+                user.save()
+            args['filter_owm_api_key'] = user_settings.owm_api_key
+        except:
+            args['filter_owm_api_key'] = ''
+
     args['username'] = request.user.username
     args['first_name'] = request.user.first_name
-
-    # GET variables
     
-    args['filter_latitude'] = request.POST.get('latitude', user_config['latitude'])
-    args['filter_longitude'] = request.POST.get('longitude', user_config['longitude'])
-    args['filter_owm_api_key'] = request.POST.get('owmAPIKey', user_config['owmAPIKey'])
-
-    user_config = { 
-                    'latitude': args['filter_latitude'],
-                    'longitude': args['filter_longitude'],
-                    'owmAPIKey': args['filter_owm_api_key'],
-                  }
-
-    # Save user configuration to config file
-    with open('user_settings.json', 'w') as f:
-        json.dump(user_config, f, indent=4)
-
     return TemplateResponse(request, "settings.html", args)
 
 

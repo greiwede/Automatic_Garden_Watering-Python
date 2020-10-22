@@ -24,22 +24,35 @@
   <a class="btn-sm btn-primary" href="/admin/auth/user/" role="button">User-Verwaltung</a>
 
   <br><hr><br>
+  {% if error %}
+  <div>
+    {{ error }}
+  </div>
+  <br>
+  {% endif %}
+  
+  {% if location_name %}
+  <div class="form-group">
+    <label for="locationName">📍 Standort</label>
+    <input value="{{ location_name }}" id="locationName" name="locationName" type="text" maxlength="32" class="form-control" placeholder="Vorname" readonly>
+  </div>
+  {% endif %}
 
   <div class="row">
     <div class="col form-group mb-2">
       <label for="latitude">Breitengrad</label>
-      <input value="{{ filter_latitude }}" id="latitude" name="latitude" type="number" maxlength="2" step="0.00001" class="form-control" placeholder="Breitengrad">
+      <input value="{{ filter_latitude }}" id="latitude" name="latitude" type="number" maxlength="2" step="0.000001" class="form-control" placeholder="Breitengrad">
     </div>
 
     <div class="col form-group mb-2">
       <label for="longitude">Längengrad</label>
-      <input value="{{ filter_longitude }}" id="longitude" name="longitude" type="number" maxlength="2" step="0.00001" class="form-control" placeholder="Längengrad">
+      <input value="{{ filter_longitude }}" id="longitude" name="longitude" type="number" maxlength="2" step="0.000001" class="form-control" placeholder="Längengrad">
     </div>
   </div>
 
   <div class="form-group mb-2">
     <label for="owmAPIKey">OpenWeatherMap API-Key</label>
-    <input value="{{ filter_owm_api_key }}" id="owmAPIKey" name="owmAPIKey" type="text" maxlength="32" class="form-control" placeholder="API-Key">
+    <input value="{{ filter_owm_api_key }}" id="owmAPIKey" name="owmAPIKey" type="text" minlength="32" maxlength="32" class="form-control" placeholder="API-Key">
     <small id="owmAPIKeyHelp" class="form-text text-muted">Erhalte deinen API-Key <a href="https://openweathermap.org/api" target="_blank">hier</a>.</small>
   </div>
 
