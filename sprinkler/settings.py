@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'webapp.apps.WebappConfig',
     'django_crontab',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -128,3 +130,7 @@ STATIC_URL = '/static/'
 CRONJOBS = [
     ('*/1 * * * *', 'sprinkler.cron.read_weather')
 ]
+
+#Celery Backend
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'

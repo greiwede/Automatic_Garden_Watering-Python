@@ -81,6 +81,7 @@ class Valve(Device):
     curr_active = models.BooleanField(default=False)
     device_type = 'Ventil'
     valve_counter = None
+    watering_time = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
 
@@ -121,6 +122,64 @@ class SprinklerForm(forms.ModelForm):
         fields = ['name', 'contr_id', 'flow_capacity', 'valve_fk']
 
 
+class WeatherCounter(models.Model):
+    weather_counter = None # wie beim Valve_Counter
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def modify_weather_counter(self):
+        automatic_plan = self.get_activ_automatic_plan()
+        if automatic_plan is not None:
+            if not automatic_plan.automation_sensor:   # Platzhalter, noch aendern
+                counter = self.weather_counter
+                if automatic_plan.automation_rain:
+                    counter = counter + self.get_rain()
+                if automatic_plan.automation_temperature:
+                    counter = counter + self.get_temperature()
+                self.weather_counter = counter
+                self.save()
+
+    # Platzhalter zur Pruefung, ob ein Sensor aktiv ist
+    def is_Sensor_activ(self):
+        return False
+
+    def get_rain(self):
+        rain_counter = 0 # self.get_current_rain_data(maria_db_connection) # Abfrage ergaenzen
+
+        if rain_counter >= 20:
+            return -100
+        elif rain_counter > 0:
+            return rain_counter * (-5)
+        else:
+            return 0
+
+    # Werte noch anpassen
+    def get_temperature(self):
+        temperatur_counter = 0 # self.get_current_temperature(marida_db_connection) # Abfrage an Model
+        if 0 <= temperature_counter <= 10:
+            return 0
+        elif 10 < temperature_counter <= 15:
+            return 1 / 8
+        elif 15 < temperature_counter <= 20:
+            return 1 / 6
+        elif 20 < temperature_counter <= 25:
+            return 1 / 3
+        elif temperature_counter >= 25:
+            return 1 / 2
+        else:
+            return 0
+
+    def get_activ_automatic_plan(self):
+        plans = Plan.getObjects.filter(status='OK')  # Feld fuer Active oder ist das status-feld das ?????????????????????????
+        for plan in plans:
+            if plan.automation_rain or plan.automation_sensor or plan.automation_temperature:
+                return plan
+        return None
+
+    def reset_weather_counter(self):
+        self.weather_counter = 0
+        self.save()
+
+
 class Plan(CommonInfo):
     is_active_plan = models.BooleanField(default=False)
     description = models.CharField(max_length=3000)
@@ -131,7 +190,7 @@ class Plan(CommonInfo):
     automation_rain = models.BooleanField(default=False)
     timespace_rain_forecast = models.IntegerField(default=24) # Standardwert 24h für forecast beachten
     automation_sensor = models.BooleanField(default=False)
-    # evt. noch Moeglichkeit hinzufuegen
+    automation_temperature = models.BooleanField(default=False)
 
     # Relationen zu Ventilen
     valve = models.ManyToManyField(Valve)
