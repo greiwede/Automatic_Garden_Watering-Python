@@ -14,6 +14,7 @@ def read_weather():
     # Get Location and API Key - if not exist raise exception
     try:
         user = User.objects.get(username__exact='malte')
+        print(request.user.username)
         user_settings = user.usersettings
         owm_api_key = user_settings.owm_api_key
         loc = Location.objects.all()[:1][0]
@@ -36,8 +37,6 @@ def read_weather():
         rain = weather.rain.get("1h")
     else:
         rain = 0
-
-    print(weather.weather_code)
 
     # -- Get correct reference_time
     reference_time = weather.reference_time('iso')# + "00"

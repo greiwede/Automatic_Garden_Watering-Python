@@ -16,7 +16,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
     'every-15-min':{
-        'task': 'webapp.tasks.print_test',
+        'task': 'webapp.tasks.aut_irrigation',
         'schedule': 15
         #'schedule': crontab(minute='*/15')
     }

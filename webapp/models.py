@@ -82,7 +82,7 @@ class Valve(Device):
     device_type = 'Ventil'
     valve_counter = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     watering_time = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, null=True)
+    sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, blank=True, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
 
 
@@ -273,7 +273,7 @@ class PlanForm(forms.ModelForm):
 
     class Meta:
         model = Plan
-        fields = ['name', 'description', 'valve_threshold', 'moisture_threshold', 'automation_rain', 'timespace_rain_forecast', 'automation_sensor', 'valve']
+        fields = ['name', 'description', 'valve_threshold', 'moisture_threshold', 'automation_rain', 'timespace_rain_forecast', 'automation_sensor', 'automation_temperature', 'valve']
 
 
 class Schedule(models.Model):

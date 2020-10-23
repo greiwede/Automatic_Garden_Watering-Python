@@ -82,6 +82,16 @@ def dashboard(request):
     try:
         weather = WeatherData.objects.latest('reference_time')
         args['temperature'] = weather.temperature
+        weather_status = weather.weather_status_fk
+        args['weather_status'] = weather_status.description
+        args['weather_status_icon'] = weather_status.icon
+
+        # Get time of day
+        hour = datetime.now().hour
+        if hour <= 8 or hour >= 21:
+            args['daytime'] = 'n' # Night
+        else:
+            args['daytime'] = 'd' # Day
     except:
         pass
 

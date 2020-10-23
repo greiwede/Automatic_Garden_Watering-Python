@@ -20,7 +20,10 @@
           {% if temperature %}
            | 🌡 {{ temperature|floatformat:"1" }}°C
           {% endif %}
-           | 🌥 Bewölkt</p>
+          {% if weather_status_icon %}
+          | <img src="http://openweathermap.org/img/wn/{{ weather_status_icon }}{{ daytime }}.png"> {{ weather_status }}
+          {% endif %}
+        </p>
         
       </div>
 
