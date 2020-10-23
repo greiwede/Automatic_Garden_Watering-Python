@@ -80,7 +80,7 @@ class SensorForm(forms.ModelForm):
 class Valve(Device):
     curr_active = models.BooleanField(default=False)
     device_type = 'Ventil'
-    valve_counter = None
+    valve_counter = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     watering_time = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
@@ -123,7 +123,7 @@ class SprinklerForm(forms.ModelForm):
 
 
 class WeatherCounter(models.Model):
-    weather_counter = None # wie beim Valve_Counter
+    weather_counter = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     updated_at = models.DateTimeField(auto_now=True)
 
     def modify_weather_counter(self):
@@ -169,7 +169,7 @@ class WeatherCounter(models.Model):
             return 0
 
     def get_activ_automatic_plan(self):
-        plans = Plan.getObjects.filter(status='OK')  # Feld fuer Active oder ist das status-feld das ?????????????????????????
+        plans = Plan.objects.filter(is_active_plan=True)
         for plan in plans:
             if plan.automation_rain or plan.automation_sensor or plan.automation_temperature:
                 return plan
