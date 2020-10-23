@@ -1,0 +1,23 @@
+# Python-Framework
+django
+
+# Install Django Crontab Module
+django-crontab
+
+# Localization Module
+geopy
+
+# OpenWeatherMap Module
+pyowm
+
+# Timezone Module
+pytz
+
+# Timezonefinder including numba
+timezonefinder[numba]
+
+### Celery requirements
+celery
+rabbitmq
+django-celery-results
+django-celery-beat

@@ -9,24 +9,15 @@ How to setup a working Sprinkler application.
 
 <h4>Raspbian</h4>
 <ol>
-	<li>Install Python: apt-get install python3</li>
-	<li>Create Virtual Environment: virtualenv -p python3 sprinklerenv</li>
-	<li>Activate Virtual Environment: source bin/activate</li>
-	<li>Install Python in Virtual Environment: apt-get install python3</li>
-	<li>Install Python-Django: python -m pip install Django</li>
-	<li>Install Django Crontab Module: pip install django-crontab</li>
-	<li>Install Python Localization Module: pip install geopy</li>
-    <li>pip install pyowm</li>
-    <li>pip install pytz</li>
-    <li>pip install timezonefinder[numba]</li>
-	<li>Pip install celery</li>
-	<li>Pip install rabbitmq</li>
-	<li>sudo apt-get install rabbitmq-server</li>
-	<li>pip install django-celery-results</li>
-	<li>pip install django-celery-beat</li>
-	<li>Clone Repository: git clone https://github.com/lennartvonwerder/python-sprinkler.git</li>
-	<li>Change Directory: cd python-spinkler</li>
-	<li>Start Server: python manage.py runserver</li>
+	<li>Install Python: `$ apt-get install python3`</li>
+	<li>Create Virtual Environment: `$ virtualenv -p python3 sprinklerenv`</li>
+	<li>Activate Virtual Environment: `$ source bin/activate`</li>
+	<li>Install Python in Virtual Environment: `$ apt-get install python3`</li>
+	<li>`$ apt-get install rabbitmq-server`</li>
+	<li>Clone Repository: `git clone https://github.com/lennartvonwerder/python-sprinkler.git`</li>
+	<li>Change Directory: `cd python-spinkler`</li>
+	<li>Install all required Python modules: `$ pip install -U -r requirements.txt`</li>
+	<li>Start Server: `$ python manage.py runserver`</li>
 </ol>
 
 <h4>Windows</h4>
@@ -44,9 +35,10 @@ How to setup a working Sprinkler application.
 	<li>pip install rabbitmq</li>
 	<li>pip install -U django-celery-results</li>
 	<li>pip install -U django-celery-beat</li>
-	<li>Clone Repository: git clone https://github.com/lennartvonwerder/python-sprinkler.git</li>
-	<li>Change Directory: cd python-spinkler</li>
-	<li>Start Server: python manage.py runserver</li>
+	<li>Clone Repository: `git clone https://github.com/lennartvonwerder/python-sprinkler.git`</li>
+	<li>Change Directory: `cd python-spinkler`</li>
+	<li>Install all required Python modules: `$ pip install -U -r requirements.txt`</li>
+	<li>Start Server: `$ python manage.py runserver`</li>
 </ol>
 
 <h4>Login:</h4>

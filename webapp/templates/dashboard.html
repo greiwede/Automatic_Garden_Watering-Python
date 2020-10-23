@@ -4,7 +4,7 @@
       
       <br>
 
-      <div class="jumbotron background_weather_sunny">
+      <div class="jumbotron background_weather_sunny" style="text-shadow: 0 0 5px rgba(0,0,0, 0.5);">
         
         <h1 class="display-4">Guten Morgen, {{ first_name }}</h1>
         <p class="lead">Dein Garten wurde heute morgen gewässert.</p>
@@ -15,13 +15,15 @@
           {% if location_county %}
           {{ location_county }}, 
           {% endif %}
-          {{ location_state }}
+          {% if location_state %}
+          {{ location_state }},
+          {% endif %}
           {{ location_country }}
           {% if temperature %}
            | 🌡 {{ temperature|floatformat:"1" }}°C
           {% endif %}
           {% if weather_status_icon %}
-          | <img src="http://openweathermap.org/img/wn/{{ weather_status_icon }}{{ daytime }}.png"> {{ weather_status }}
+          | <img src="http://openweathermap.org/img/wn/{{ weather_status_icon }}{{ daytime }}.png">{{ weather_status }}
           {% endif %}
         </p>
         
