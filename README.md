@@ -19,6 +19,11 @@ How to setup a working Sprinkler application.
     <li>pip install pyowm</li>
     <li>pip install pytz</li>
     <li>pip install timezonefinder[numba]</li>
+	<li>Pip install celery
+	<li>Pip install rabbitmq
+	<li>sudo apt-get install rabbitmq-server
+	<li>pip install django-celery-results
+	<li>pip install django-celery-beat
 	<li>Clone Repository: git clone https://github.com/lennartvonwerder/python-sprinkler.git</li>
 	<li>Change Directory: cd python-spinkler</li>
 	<li>Start Server: python manage.py runserver</li>
@@ -35,6 +40,10 @@ How to setup a working Sprinkler application.
     <li>pip install pyowm</li>
     <li>pip install pytz</li>
     <li>pip install timezonefinder[numba]</li>
+	<li>pip install -U celery
+	<li>pip install rabbitmq
+	<li>pip install -U django-celery-results
+	<li>pip install -U django-celery-beat
 	<li>Clone Repository: git clone https://github.com/lennartvonwerder/python-sprinkler.git</li>
 	<li>Change Directory: cd python-spinkler</li>
 	<li>Start Server: python manage.py runserver</li>
