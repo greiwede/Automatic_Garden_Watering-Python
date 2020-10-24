@@ -8,6 +8,15 @@ It is supposed to run on a Raspberry Pi.
 How to setup a working Sprinkler application.
 
 ### Raspbian
+#### Option 1: automatic setup via setup script
+1. Download setup script
+<pre>pi@raspberry:~ $ <b>curl https://raw.githubusercontent.com/lennartvonwerder/python-sprinkler/master/raspbian_setup.sh</b></pre>
+2. Make file executable
+<pre>pi@raspberry:~ $ <b>sudo chmod +x raspbian_setup.sh</b></pre>
+3. Run script
+sudo ./raspbian_setup.sh
+
+#### Option 2: manual setup
 1. Install Python3.*, RabbitMQ and libATLAS for Celery
 <pre>pi@raspberry:~ $ <b>sudo apt-get install python3 rabbitmq-server libatlas-base-dev</b></pre>
 2. Create Virtual Environment
@@ -21,7 +30,7 @@ How to setup a working Sprinkler application.
 6. Change Directory
 <pre>pi@raspberry:~ $ <b>cd python-sprinkler</b></pre>
 7. Install all required Python modules
-<pre>pi@raspberry:~ $ <b>pip install -U -r requirements.txt</b></pre>
+<pre>pi@raspberry:~ $ <b>pip install -r requirements.txt</b></pre>
 8. Start Server
 <pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
 9. Enjoy!
@@ -34,11 +43,11 @@ How to setup a working Sprinkler application.
 <pre>cd spinklerenv</pre>
 4. Activate Virtual Environment
 <pre>.\env\Scripts\activate</pre>
-5. [Download latest release](https://github.com/lennartvonwerder/python-sprinkler/releases), unzip it and place the folder into the `.\sprinklerenv\` directory
+5. [Download latest release](https://github.com/lennartvonwerder/python-sprinkler/releases/latest), unzip it and place the folder into the `.\sprinklerenv\` directory
 6. Enter the directory
 <pre>cd python-sprinkler</pre>
 7. Install all required Python modules
-<pre>pip install -U -r requirements.txt</pre>
+<pre>pip install -r requirements.txt</pre>
 8. Start Server
 <pre>python manage.py runserver</pre>
 9. Enjoy!
