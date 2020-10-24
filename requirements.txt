@@ -17,7 +17,7 @@ pytz
 timezonefinder[numba]
 
 ### Celery requirements
-celery
+celery<5.0,>=4.4
 rabbitmq
 django-celery-results
 django-celery-beat
