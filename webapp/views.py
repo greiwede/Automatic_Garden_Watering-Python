@@ -8,9 +8,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 
-import json
+import sys
+sys.path.append("..")
 
 from .models import *
+from sprinkler.cron import read_weather
+
+import json
 
 from geopy.geocoders import Nominatim
 
@@ -487,11 +491,11 @@ def settings(request):
             
             loc = get_location_data(request_latitude, request_longitude, Location())
             loc.save()
-            malte(request)
+            read_weather()
         except:
             loc = get_location_data(request_latitude, request_longitude, Location())
             loc.save()
-            malte(request)
+            read_weather()
         args['filter_latitude'] = str(loc.latitude)
         args['filter_longitude'] = str(loc.longitude)
         args['location_name'] = loc.__str__()

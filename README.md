@@ -10,7 +10,7 @@ How to setup a working Sprinkler application.
 ### Raspbian
 #### Option 1: automatic setup via setup script
 1. Download setup script and execute
-<pre>pi@raspberry:~ $ <b>bash <(curl -s https://raw.githubusercontent.com/lennartvonwerder/python-sprinkler/master/raspbian_setup.sh)</b></pre>
+<pre>pi@raspberry:~ $ <b>sudo bash <(curl -s https://raw.githubusercontent.com/lennartvonwerder/python-sprinkler/master/raspbian_setup.sh)</b></pre>
 2. Enjoy!
 
 #### Option 2: manual setup
