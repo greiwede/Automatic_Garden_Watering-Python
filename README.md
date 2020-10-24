@@ -14,7 +14,7 @@ How to setup a working Sprinkler application.
 2. Make file executable
 <pre>pi@raspberry:~ $ <b>sudo chmod +x raspbian_setup.sh</b></pre>
 3. Run script
-sudo ./raspbian_setup.sh
+<pre>pi@raspberry:~ $ <b>sudo ./raspbian_setup.sh</b></pre>
 
 #### Option 2: manual setup
 1. Install Python3.*, RabbitMQ and libATLAS for Celery
