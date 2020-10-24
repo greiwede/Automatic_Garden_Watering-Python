@@ -8,39 +8,40 @@ It is supposed to run on a Raspberry Pi.
 How to setup a working Sprinkler application.
 
 ### Raspbian
-1. Install Python3.*, RabbitMQ and libATLAS for Celery\
+1. Install Python3.*, RabbitMQ and libATLAS for Celery
 <pre>pi@raspberry:~ $ <b>sudo apt-get install python3 rabbitmq-server libatlas-base-dev</b></pre>
-2. Create Virtual Environment\
+2. Create Virtual Environment
 <pre>pi@raspberry:~ $ <b>python3 -m venv sprinklerenv</b></pre>
-3. Change Directory\
+3. Change Directory
 <pre>pi@raspberry:~ $ <b>cd spinklerenv</b></pre>
-4. Activate Virtual Environment\
+4. Activate Virtual Environment
 <pre>pi@raspberry:~ $ <b>source bin/activate</b></pre>
-5. Clone Repository\
+5. Clone Repository
 <pre>pi@raspberry:~ $ <b>git clone https://github.com/lennartvonwerder/python-sprinkler.git</b></pre>
-6. Change Directory\
+6. Change Directory
 <pre>pi@raspberry:~ $ <b>cd python-sprinkler</b></pre>
-7. Install all required Python modules\
+7. Install all required Python modules
 <pre>pi@raspberry:~ $ <b>pip install -U -r requirements.txt</b></pre>
-8. Start Server\
+8. Start Server
 <pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
+9. Enjoy!
 
 ### Windows
-1. Install Python: https://www.python.org/downloads/\
-2. Create Virtual Environment\
-`py -m venv sprinklerenv`
-3. Change Directory\
-`cd spinklerenv`
-4. Activate Virtual Environment\
-`.\env\Scripts\activate`
-5. Clone Repository\
-`git clone https://github.com/lennartvonwerder/python-sprinkler.git`
-6. Change Directory\
-`cd python-sprinkler`
-7. Install all required Python modules\
-`pip install -U -r requirements.txt`
-8. Start Server\
-`python manage.py runserver`
+1. Install Python: https://www.python.org/downloads/
+2. Create Virtual Environment
+<pre>py -m venv sprinklerenv</pre>
+3. Change Directory
+<pre>cd spinklerenv</pre>
+4. Activate Virtual Environment
+<pre>.\env\Scripts\activate</pre>
+5. [Download latest release](https://github.com/lennartvonwerder/python-sprinkler/releases), unzip it and place the folder into the `.\sprinklerenv\` directory
+6. Enter the directory
+<pre>cd python-sprinkler</pre>
+7. Install all required Python modules
+<pre>pip install -U -r requirements.txt</pre>
+8. Start Server
+<pre>python manage.py runserver</pre>
+9. Enjoy!
 
 ##### Login:
 Username: `sprinkleradmin`\
