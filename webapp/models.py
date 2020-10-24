@@ -154,7 +154,7 @@ class WeatherCounter(models.Model):
 
     # Werte noch anpassen
     def get_temperature(self):
-        temperatur_counter = 0 # self.get_current_temperature(marida_db_connection) # Abfrage an Model
+        temperature_counter = 0 # self.get_current_temperature(marida_db_connection) # Abfrage an Model
         if 0 <= temperature_counter <= 10:
             return 0
         elif 10 < temperature_counter <= 15:
