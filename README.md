@@ -9,21 +9,21 @@ How to setup a working Sprinkler application.
 
 ### Raspbian
 1. Install Python3.*, RabbitMQ and libATLAS for Celery\
-`# apt-get install python3 rabbitmq-server libatlas-base-dev`
+<pre>pi@raspberry:~ $ <b>sudo apt-get install python3 rabbitmq-server libatlas-base-dev</b></pre>
 2. Create Virtual Environment\
-`$  python3 -m venv sprinklerenv`
+<pre>$  python3 -m venv sprinklerenv</pre>
 3. Change Directory\
-`cd spinklerenv`
+<pre>cd spinklerenv</pre>
 4. Activate Virtual Environment\
-`$ source bin/activate`
+<pre>$ source bin/activate</pre>
 5. Clone Repository\
-`git clone https://github.com/lennartvonwerder/python-sprinkler.git`
+<pre>git clone https://github.com/lennartvonwerder/python-sprinkler.git</pre>
 6. Change Directory\
-`cd python-sprinkler`
+<pre>cd python-sprinkler</pre>
 7. Install all required Python modules\
-`$ pip install -U -r requirements.txt`
+<pre>$ pip install -U -r requirements.txt</pre>
 8. Start Server\
-`$ python manage.py runserver`
+<pre>$ python manage.py runserver</pre>
 
 ### Windows
 1. Install Python: https://www.python.org/downloads/\
