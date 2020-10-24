@@ -32,6 +32,7 @@ urlpatterns = [
 
     # Statistics
     path('statistics/', views.statistics, name='statistics'),
+    path('statistics/<int:year>/', views.statistics, name='statistics_year'),
 
     # Weather
     path('weather/', views.weather, name='weather'),

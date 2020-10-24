@@ -8,20 +8,11 @@
 
 <br><br>
 
-<h3>Wasserverbrauch</h3>
+<h3>Wasserverbrauch in {{ year }}</h3>
 
 <br>
-
-<div class="dropdown">
-  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Für das Jahr 2020
-  </a>
-
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-    <a class="dropdown-item" href="#">2019</a>
-    <a class="dropdown-item" href="#">2018</a>
-  </div>
-</div>
+<a href="{% url 'statistics_year' year_after %}" class="btn btn-secondary">Vorheriges Jahr {{ year_after }}</a>
+<a href="{% url 'statistics_year' year_before %}" class="btn btn-secondary">Nächstes Jahr {{ year_before }}</a>
 
 <br>
 
