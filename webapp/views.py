@@ -162,27 +162,23 @@ def device_start(request, device_type, device_id):
     args = {}
 
     if device_type == 0:
-        sprinklers = Sprinkler.objects.get(id=device_id)
-        sprinklers.curr_active = True
-        sprinklers.save()
+        sprinkler = Sprinkler.objects.get(id=device_id)
+        sprinkler.activate()
         print('Sprinkler mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Sprinkler')
     elif device_type == 1:
-        sensors = Sensor.objects.get(id=device_id)
-        sensors.curr_active = True
-        sensors.save()
+        sensor = Sensor.objects.get(id=device_id)
+        sensor.activate()
         print('Sensor mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Sensor')
     elif device_type == 2:
-        pumps = Pump.objects.get(id=device_id)
-        pumps.curr_active = True
-        pumps.save()
+        pump = Pump.objects.get(id=device_id)
+        pump.activate()
         print('Pumpe mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Pumpe')
     elif device_type == 3:
-        valves = Valve.objects.get(id=device_id)
-        valves.curr_active = True
-        valves.save()
+        valve = Valve.objects.get(id=device_id)
+        valve.activate()
         print('Ventil mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Ventil')
 
@@ -193,27 +189,23 @@ def device_stop(request, device_type, device_id):
     args = {}
 
     if device_type == 0:
-        sprinklers = Sprinkler.objects.get(id=device_id)
-        sprinklers.curr_active = False
-        sprinklers.save()
+        sprinkler = Sprinkler.objects.get(id=device_id)
+        sprinkler.deactivate()
         print('Sprinkler mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Sprinkler')
     elif device_type == 1:
-        sensors = Sensor.objects.get(id=device_id)
-        sensors.curr_active = False
-        sensors.save()
+        sensor = Sensor.objects.get(id=device_id)
+        sensor.deactivate()
         print('Sensor mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Sensor')
     elif device_type == 2:
-        pumps = Pump.objects.get(id=device_id)
-        pumps.curr_active = False
-        pumps.save()
+        pump = Pump.objects.get(id=device_id)
+        pump.deactivate()
         print('Pumpe mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Pumpe')
     elif device_type == 3:
-        valves = Valve.objects.get(id=device_id)
-        valves.curr_active = False
-        valves.save()
+        valve = Valve.objects.get(id=device_id)
+        valve.deactivate()
         print('Ventil mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Ventil')
 
@@ -460,6 +452,15 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
     args['year'] = year
     args['year_before'] = year + 1
     args['year_after'] = year - 1
+
+    ws_year = WateringStatistic.objects.filter(start_time__year=year)
+
+    for i in range(1, 13):
+        ws_month = ws_year.filter(start_time__month=i)
+        args['water_month_' + str(i)] = 0
+        for ws in ws_month:
+            args['water_month_' + str(i)] += ws.get_water_amount()
+        print(args['water_month_' + str(i)])
     
     return TemplateResponse(request, "statistics.html", args)
 

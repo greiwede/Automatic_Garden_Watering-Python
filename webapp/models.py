@@ -47,6 +47,34 @@ class Pump(Device):
     flow_capacity = models.DecimalField(max_digits=5, decimal_places=2)
     current_workload = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
+    def activate(self):
+        if self.curr_active == False:
+            self.curr_active = True
+            self.save()
+
+    def deactivate(self):
+        if self.curr_active == True:
+            self.curr_active = False
+            self.save()
+            attached_valves = self.get_attached_valves()
+            for valve in attached_valves:
+                valve.deactivate()
+
+    def get_attached_valves(self):
+        return Valve.objects.filter(pump_fk__exact=self)
+
+    def add_to_current_workload(self, add_value):
+        self.current_workload += add_value
+        self.save()
+        if self.current_workload > 0:
+            self.activate()
+
+    def subtract_from_current_workload(self, subtract_value):
+        self.current_workload -= subtract_value
+        self.save()
+        if self.current_workload == 0:
+            self.deactivate()
+
 
 class PumpForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -70,6 +98,16 @@ class Sensor(Device):
     curr_active = models.BooleanField(default=False)
     device_type = 'Sensor'
     moisture = None
+
+    def activate(self):
+        if self.curr_active == False:
+            self.curr_active = True
+            self.save()
+
+    def deactivate(self):
+        if self.curr_active == True:
+            self.curr_active = False
+            self.save()
 
 
 class SensorForm(forms.ModelForm):
@@ -101,17 +139,34 @@ class Valve(Device):
 
     def activate(self):
         if self.curr_active == False:
+            self.pump_fk.add_to_current_workload(self.get_attached_flow_capacity())
             self.curr_active = True
+            attached_sprinklers = self.get_attached_sprinklers()
+            for sprinkler in attached_sprinklers:
+                sprinkler.activate()
             self.activate_date_time = timezone.now()
             self.save()
     
     def deactivate(self):
-        self.curr_active = False
-        time_difference = timezone.now() - self.activate_date_time
-        WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
-        self.activate_date_time = None
-        self.save()
+        if self.curr_active == True:
+            self.pump_fk.subtract_from_current_workload(self.get_attached_flow_capacity())
+            self.curr_active = False
+            attached_sprinklers = self.get_attached_sprinklers()
+            for sprinkler in attached_sprinklers:
+                sprinkler.deactivate()
+            time_difference = timezone.now() - self.activate_date_time
+            WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
+            self.activate_date_time = None
+            self.save()
+    def get_attached_sprinklers(self):
+        return Sprinkler.objects.filter(valve_fk__exact=self)
 
+    def get_attached_flow_capacity(self):
+        attached_flow_capacity = 0
+        attached_valves = self.get_attached_sprinklers()
+        for valve in attached_valves:
+            attached_flow_capacity += valve.flow_capacity
+        return attached_flow_capacity
 
 
 class ValveForm(forms.ModelForm):
@@ -139,8 +194,19 @@ class Sprinkler(Device):
     device_type = 'Sprinkler'
     flow_capacity = models.DecimalField(max_digits=5, decimal_places=2)
 
-    # Sprenkler weiterhin gespeichert, wenn ein Ventil geloescht wird, damit es bei Bedarf einen anderen Ventil zugeordnet werden kann
-    valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True) 
+    # Sprinkler weiterhin gespeichert, wenn ein Ventil geloescht wird, damit es bei Bedarf einen anderen Ventil zugeordnet werden kann
+    valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
+
+    def activate(self):
+        if self.curr_active == False:
+            self.curr_active = True
+            self.save()
+
+    def deactivate(self):
+        if self.curr_active == True:
+            self.curr_active = False
+            self.save()
+
 
 # Form for Sprinkler
 class SprinklerForm(forms.ModelForm):
@@ -169,7 +235,7 @@ class WeatherCounter(models.Model):
     def modify_weather_counter(self):
         automatic_plan = self.get_activ_automatic_plan()
         if automatic_plan is not None:
-            if not automatic_plan.automation_sensor:   # Platzhalter, noch aendern
+            if not automatic_plan.automation_sensor:
                 counter = self.weather_counter
                 if automatic_plan.automation_rain:
                     counter = counter + self.get_rain()
@@ -179,7 +245,7 @@ class WeatherCounter(models.Model):
                 self.save()
 
     # Platzhalter zur Pruefung, ob ein Sensor aktiv ist
-    def is_Sensor_activ(self):
+    def is_sensor_activ(self):
         return False
 
     def get_rain(self):
@@ -497,3 +563,8 @@ class WateringStatistic(models.Model):
     start_time = models.DateTimeField()
     valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
     duration_seconds = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def get_water_amount(self):
+        flow_capacity = self.valve_fk.get_attached_flow_capacity()
+
+        return float(self.duration_seconds / 60 * flow_capacity)
