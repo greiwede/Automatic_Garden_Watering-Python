@@ -274,7 +274,17 @@ class PlanForm(forms.ModelForm):
     class Meta:
         model = Plan
         fields = ['name', 'description', 'valve_threshold', 'moisture_threshold', 'automation_rain', 'timespace_rain_forecast', 'automation_sensor', 'automation_temperature', 'valve']
-
+        labels = {
+        "name": "Name des Plans",
+        'description': "Beschreibung", 
+        'valve_threshold': "Aktivierungsschwelle des Ventils", 
+        'moisture_threshold': "Aktivierungsschwelle des Feuchtigkeitssensors", 
+        'automation_rain': "Automatisierung durch Regendaten", 
+        'timespace_rain_forecast': "Reichweite in Tagen der Regengestützten Automatisierung", 
+        'automation_sensor': "Auswahl des Sensors", 
+        'automation_temperature': "Automatisierung durch Temperatur", 
+        'valve': "Ventile (Mehrere durch STRG+Klick auswählbar)"
+        }
 
 class Schedule(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
