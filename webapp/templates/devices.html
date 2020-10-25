@@ -12,6 +12,7 @@
   {% if filter_device == 'Sprinkler' %}<a class="btn btn-success" href="{% url 'device_create' 0 %}" role="button">Neuer Sprinkler</a>{% endif %}
   {% if filter_device == 'Sensor' %}<a class="btn btn-success" href="{% url 'device_create' 1 %}" role="button">Neuer Sensor</a>{% endif %}
   {% if filter_device == 'Pumpe' %}<a class="btn btn-success" href="{% url 'device_create' 2 %}" role="button">Neue Pumpe</a>{% endif %}
+  {% if filter_device == 'Ventil' %}<a class="btn btn-success" href="{% url 'device_create' 3 %}" role="button">Neues Ventil</a>{% endif %}
 
 
 <br>
@@ -27,6 +28,7 @@
         <option {% if filter_device == 'Sprinkler' %} selected {% endif %}>Sprinkler</option>
         <option {% if filter_device == 'Sensor' %} selected {% endif %}>Sensor</option>
         <option {% if filter_device == 'Pumpe' %} selected {% endif %}>Pumpe</option>
+        <option {% if filter_device == 'Ventil' %} selected {% endif %}>Ventil</option>
     </select>
   </div>
   <div class="form-group mx-sm-3 mb-2">
@@ -98,6 +100,9 @@
   {% endif %}
   {% if filter_device == 'Pumpe' %}
     <p>Es wurde keine Pumpe gefunden. Um andere Geräte anzuzeigen den Filter ändern.</p>
+  {% endif %}
+  {% if filter_device == 'Ventil' %}
+    <p>Es wurden keine Ventile gefunden. Um andere Geräte anzuzeigen den Filter ändern.</p>
   {% endif %}
 {% endif %}
 

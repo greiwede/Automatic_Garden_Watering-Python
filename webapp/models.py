@@ -139,7 +139,7 @@ class SprinklerForm(forms.ModelForm):
         'name': 'Name des Sprinklers', 
         'contr_id': 'Controller ID', 
         'flow_capacity': 'Durchflusskapzität in L/min', 
-        'valve_fk': 'Zugehörige Pumpe'
+        'valve_fk': 'Zugehöriges Ventil'
         }
 
 

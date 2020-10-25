@@ -118,7 +118,11 @@ def devices(request):
 
     check = 0
 
-    if args['filter_device'] == 'Pumpe':
+    if args['filter_device'] == 'Ventil':
+        devices = Valve.objects
+        args['edit_key'] = 3
+        args['type_name'] = 'valve'
+    elif args['filter_device'] == 'Pumpe':
         devices = Pump.objects
         args['edit_key'] = 2
         args['type_name'] = 'pump'
@@ -175,6 +179,12 @@ def device_start(request, device_type, device_id):
         pumps.save()
         print('Pumpe mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Pumpe')
+    elif device_type == 3:
+        valves = Valve.objects.get(id=device_id)
+        valves.curr_active = True
+        valves.save()
+        print('Ventil mit der ID ', device_id, ' wurde gestartet.')
+        return redirect('/devices/?device=Ventil')
 
     return redirect('devices')
 
@@ -200,6 +210,12 @@ def device_stop(request, device_type, device_id):
         pumps.save()
         print('Pumpe mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Pumpe')
+    elif device_type == 3:
+        valves = Valve.objects.get(id=device_id)
+        valves.curr_active = False
+        valves.save()
+        print('Ventil mit der ID ', device_id, ' wurde gestoppt.')
+        return redirect('/devices/?device=Ventil')
 
     return redirect('devices')
 
@@ -232,6 +248,14 @@ def device_create(request, device_type):
         else:
             args['headline'] = "Neue Pumpe"
             args['form'] = PumpForm()
+    elif device_type == 3: # Valve
+        if request.method == 'POST':
+            d = ValveForm(request.POST)
+            new_device = d.save()
+            return redirect('/devices/?device=Ventil')
+        else:
+            args['headline'] = "Neues Ventil"
+            args['form'] = ValveForm()
 
     return TemplateResponse(request, "device_create.html", args)
 
@@ -272,7 +296,17 @@ def device_edit(request, device_type, device_id):
         else:
             d = Pump.objects.get(pk=device_id)
             args['headline'] = "Pumpe bearbeiten"
-            args['form'] = PumpForm(instance=d)  
+            args['form'] = PumpForm(instance=d)
+    elif device_type == 3: # Valve
+        if request.method == 'POST':
+            d = Valve.objects.get(pk=device_id)
+            f = ValveForm(request.POST, instance=d)
+            f.save()
+            return redirect('/devices/?device=Ventil')
+        else:
+            d = Valve.objects.get(pk=device_id)
+            args['headline'] = "Ventil bearbeiten"
+            args['form'] = ValveForm(instance=d)  
 
     return TemplateResponse(request, "device_edit.html", args)
 
@@ -289,6 +323,9 @@ def device_delete(request, device_type, device_id):
     elif device_type == 2:
         Pump.objects.get(id=device_id).delete()
         return redirect('/devices/?device=Pumpe')
+    elif device_type == 3:
+        Valve.objects.get(id=device_id).delete()
+        return redirect('/devices/?device=Ventil')
 
     return redirect('devices')
 
