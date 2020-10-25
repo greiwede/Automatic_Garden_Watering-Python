@@ -291,7 +291,7 @@ class PlanForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control',
                 'onclick': 'myFunction()'
-        })
+            })
 
     class Meta:
         model = Plan
