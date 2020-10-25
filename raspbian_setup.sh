@@ -11,8 +11,13 @@ echo -e "\e[92mPackage list updated successfully\033[0m"
 
 # install required packages
 echo -e "\e[93mInstalling required packages\033[0m"
-apt-get install python3 rabbitmq-server libatlas-base-dev -y
+apt-get install python3 python3-venv curl git rabbitmq-server libatlas-base-dev -y
 echo -e "\e[92mFinished installing required packages\033[0m"
+
+# install pip
+echo -e "\e[93mInstalling pip\033[0m"
+python3 <(curl -s https://bootstrap.pypa.io/get-pip.py)
+echo -e "\e[92mFinished installing pip\033[0m"
 
 # create virtual environment
 echo -e "\e[93mEnter name for virtual environment (default: sprinklerenv): \033[0m"
@@ -21,7 +26,7 @@ if [ -z "$venvname" ]
 then 
     venvname="sprinklerenv"
 fi 
-echo -e "\e[93mSetting up venv '$venvname"
+echo -e "\e[93mSetting up venv '$venvname'"
 python3 -m venv sprinklerenv
 cd sprinklerenv
 source bin/activate

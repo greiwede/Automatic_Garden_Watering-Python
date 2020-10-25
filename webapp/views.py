@@ -457,14 +457,10 @@ def schedule_delete(request, plan_id, schedule_id):
 @login_required(login_url='/admin/login/')
 def statistics(request, year=int(datetime.now().strftime('%Y'))):
     args = {}
-    print(year)
-
     args['year'] = year
     args['year_before'] = year + 1
     args['year_after'] = year - 1
     
-
-
     return TemplateResponse(request, "statistics.html", args)
 
 @login_required(login_url='/admin/login/')

@@ -8,6 +8,7 @@
         
         <h1 class="display-4">Guten Morgen, {{ first_name }}</h1>
         <p class="lead">Dein Garten wurde heute morgen gewässert.</p>
+        <br>
         <p class="lead">📍 
           {% if location_town %}
           {{ location_town }}, 
@@ -19,11 +20,13 @@
           {{ location_state }},
           {% endif %}
           {{ location_country }}
-          {% if temperature %}
-           | 🌡 {{ temperature|floatformat:"1" }}°C
-          {% endif %}
+        </p>
+        <p class="lead">
           {% if weather_status_icon %}
-          | <img src="http://openweathermap.org/img/wn/{{ weather_status_icon }}{{ daytime }}.png">{{ weather_status }}
+            <img src="http://openweathermap.org/img/wn/{{ weather_status_icon }}{{ daytime }}.png">{{ weather_status }}
+          {% endif %}
+          {% if temperature %}
+            | 🌡 {{ temperature|floatformat:"1" }}°C
           {% endif %}
         </p>
         
