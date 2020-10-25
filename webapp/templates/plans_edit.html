@@ -31,9 +31,6 @@
           <th scope="col">Erlaubte Wochentage</th>
           <th scope="col">Start</th>
           <th scope="col">Stop</th>
-          <th scope="col">Verbotene Wochentage</th>
-          <th scope="col">Verbotsstart</th>
-          <th scope="col">Verbotsstop</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -42,83 +39,89 @@
       {% for schedule in schedules %}
         <tr>
           <td>
-            {% if 0 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Mo</span>
-            {% else %}
-            <span class="badge badge-light">Mo</span>
-            {% endif %}
-            {% if 1 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Di</span>
-            {% else %}
-            <span class="badge badge-light">Di</span>
-            {% endif %}
-            {% if 2 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Mi</span>
-            {% else %}
-            <span class="badge badge-light">Mi</span>
-            {% endif %}
-            {% if 3 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Do</span>
-            {% else %}
-            <span class="badge badge-light">Do</span>
-            {% endif %}
-            {% if 4 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Fr</span>
-            {% else %}
-            <span class="badge badge-light">Fr</span>
-            {% endif %}
-            {% if 5 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">Sa</span>
-            {% else %}
-            <span class="badge badge-light">Sa</span>
-            {% endif %}
-            {% if 6 in schedule.allowed_weekdays %}
-            <span class="badge badge-info">So</span>
-            {% else %}
-            <span class="badge badge-light">So</span>
-            {% endif %}
+            {% if schedule.is_allow %}
+              {% with display_type="info" %}
+                {% if 0 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Mo</span>
+                {% else %}
+                <span class="badge badge-light">Mo</span>
+                {% endif %}
+                {% if 1 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Di</span>
+                {% else %}
+                <span class="badge badge-light">Di</span>
+                {% endif %}
+                {% if 2 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Mi</span>
+                {% else %}
+                <span class="badge badge-light">Mi</span>
+                {% endif %}
+                {% if 3 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Do</span>
+                {% else %}
+                <span class="badge badge-light">Do</span>
+                {% endif %}
+                {% if 4 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Fr</span>
+                {% else %}
+                <span class="badge badge-light">Fr</span>
+                {% endif %}
+                {% if 5 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Sa</span>
+                {% else %}
+                <span class="badge badge-light">Sa</span>
+                {% endif %}
+                {% if 6 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">So</span>
+                {% else %}
+                <span class="badge badge-light">So</span>
+                {% endif %}
           </td>
-          <td><span class="badge badge-info">{{ schedule.allow_time_start }}</span></td>
-          <td><span class="badge badge-info">{{ schedule.allow_time_stop }}</span></td>
-          <td>
-            {% if 0 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Mo</span>
-            {% else %}
-            <span class="badge badge-light">Mo</span>
+          <td><span class="badge badge-{{ display_type }}">{{ schedule.time_start }}</span></td>
+          <td><span class="badge badge-{{ display_type }}">{{ schedule.time_stop }}</span></td>
+              {% endwith %}
+            {% elif schedule.is_deny %}
+              {% with display_type="warning" %}
+                {% if 0 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Mo</span>
+                {% else %}
+                <span class="badge badge-light">Mo</span>
+                {% endif %}
+                {% if 1 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Di</span>
+                {% else %}
+                <span class="badge badge-light">Di</span>
+                {% endif %}
+                {% if 2 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Mi</span>
+                {% else %}
+                <span class="badge badge-light">Mi</span>
+                {% endif %}
+                {% if 3 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Do</span>
+                {% else %}
+                <span class="badge badge-light">Do</span>
+                {% endif %}
+                {% if 4 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Fr</span>
+                {% else %}
+                <span class="badge badge-light">Fr</span>
+                {% endif %}
+                {% if 5 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">Sa</span>
+                {% else %}
+                <span class="badge badge-light">Sa</span>
+                {% endif %}
+                {% if 6 in schedule.weekdays %}
+                <span class="badge badge-{{ display_type }}">So</span>
+                {% else %}
+                <span class="badge badge-light">So</span>
+                {% endif %}
+          </td>
+          <td><span class="badge badge-{{ display_type }}">{{ schedule.time_start }}</span></td>
+          <td><span class="badge badge-{{ display_type }}">{{ schedule.time_stop }}</span></td>
+              {% endwith %}
             {% endif %}
-            {% if 1 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Di</span>
-            {% else %}
-            <span class="badge badge-light">Di</span>
-            {% endif %}
-            {% if 2 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Mi</span>
-            {% else %}
-            <span class="badge badge-light">Mi</span>
-            {% endif %}
-            {% if 3 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Do</span>
-            {% else %}
-            <span class="badge badge-light">Do</span>
-            {% endif %}
-            {% if 4 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Fr</span>
-            {% else %}
-            <span class="badge badge-light">Fr</span>
-            {% endif %}
-            {% if 5 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">Sa</span>
-            {% else %}
-            <span class="badge badge-light">Sa</span>
-            {% endif %}
-            {% if 6 in schedule.denied_weekdays %}
-            <span class="badge badge-warning">So</span>
-            {% else %}
-            <span class="badge badge-light">So</span>
-            {% endif %}
-            </td>
-          <td><span class="badge badge-warning">{{ schedule.deny_time_start }}</span></td>
-          <td><span class="badge badge-warning">{{ schedule.deny_time_stop }}</span></td>
           <td>
             <a class="btn-sm btn-secondary" href="{% url 'schedule_edit' id schedule.id %}" role="button">Bearbeiten</a>
             <a onclick="return confirm('Soll der Plan {{ plan.name }} löschen?')" class="btn-sm btn-danger" href="{% url 'schedule_delete' id schedule.id %}" role="button">Löschen</a>

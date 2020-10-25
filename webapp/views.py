@@ -370,6 +370,18 @@ def plans_create(request):
     return TemplateResponse(request, "plans_create.html", args)
 
 @login_required(login_url='/admin/login/')
+def plans_activate(request, plan_id):
+    plan = Plan.objects.get(pk=plan_id)
+    plan.activate()
+    return redirect('plans')
+
+@login_required(login_url='/admin/login/')
+def plans_deactivate(request, plan_id):
+    plan = Plan.objects.get(pk=plan_id)
+    plan.deactivate()
+    return redirect('plans')
+
+@login_required(login_url='/admin/login/')
 def plans_edit(request, plan_id):
     args = {}
     args['id'] = plan_id
@@ -385,12 +397,14 @@ def plans_edit(request, plan_id):
 
         schedules = Schedule.objects.filter(plan=plan_id).all()
         for schedule in schedules:
-            schedule.allowed_weekdays = schedule.get_allowed_weekdays()
-            schedule.denied_weekdays = schedule.get_denied_weekdays()
-            next_allowed_start_date_time = schedule.get_next_date_time(schedule.allowed_weekdays, schedule.allow_time_start)
-            next_allowed_end_date_time = schedule.get_next_date_time(schedule.allowed_weekdays, schedule.allow_time_stop)
-            next_denied_start_date_time = schedule.get_next_date_time(schedule.denied_weekdays, schedule.deny_time_start)
-            next_denied_end_date_time = schedule.get_next_date_time(schedule.denied_weekdays, schedule.deny_time_stop)
+            if schedule.is_allow:
+                schedule.weekdays = schedule.get_weekdays()
+                next_allowed_start_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_start)
+                next_allowed_end_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_stop)
+            if schedule.is_deny:
+                schedule.weekdays = schedule.get_weekdays()
+                next_denied_start_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_start)
+                next_denied_end_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_stop)
 
         args['schedules'] = schedules
 
@@ -456,20 +470,43 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
 @login_required(login_url='/admin/login/')
 def weather(request):
     args = {}
+
+    try:
+        loc = Location.objects.all()[:1][0]
+        args['location_name'] = loc.__str__()
+    except:
+        pass
+
+    weathers = WeatherData.objects.all()
+    args['weathers'] = weathers
+
+    # Get time of day
+    hour = datetime.now().hour
+    if hour <= 8 or hour >= 21:
+        args['daytime'] = 'n' # Night
+    else:
+        args['daytime'] = 'd' # Day
+
     return TemplateResponse(request, "weather.html", args)
 
 @login_required(login_url='/admin/login/')
 def settings(request):
     def get_location_data(lat, lon, loc):
+        """ Get location name data and utc offset and set it in the model """
         lat = float(lat)
         lon = float(lon)
 
         loc.latitude = lat
         loc.longitude = lon
-       
-        geolocator = Nominatim(user_agent="openmapquest", timeout=3)
-        location = geolocator.reverse('{}, {}'.format(lat, lon), language='de')
-        address = address = location.raw['address']
+
+        # Get location name data and set it in the model
+        try:
+            geolocator = Nominatim(user_agent="openmapquest", timeout=3)
+            location = geolocator.reverse('{}, {}'.format(lat, lon), language='de')
+            address = address = location.raw['address']
+        except:
+            address = {}
+
         if 'city' in address:
             loc.city = address['city']    
         elif 'town' in address:
@@ -513,7 +550,7 @@ def settings(request):
             args['filter_latitude'] = ''
             args['filter_longitude'] = ''
     elif request_latitude == '' and request_longitude == '':
-        # No Location given. Delete existing Location and make fiels empty
+        # No Location given. Delete existing Location and empty fiels
         print("no location given")
         try:
             loc = Location.objects.all()[:1][0]
