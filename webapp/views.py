@@ -370,6 +370,18 @@ def plans_create(request):
     return TemplateResponse(request, "plans_create.html", args)
 
 @login_required(login_url='/admin/login/')
+def plans_activate(request, plan_id):
+    plan = Plan.objects.get(pk=plan_id)
+    plan.activate()
+    return redirect('plans')
+
+@login_required(login_url='/admin/login/')
+def plans_deactivate(request, plan_id):
+    plan = Plan.objects.get(pk=plan_id)
+    plan.deactivate()
+    return redirect('plans')
+
+@login_required(login_url='/admin/login/')
 def plans_edit(request, plan_id):
     args = {}
     args['id'] = plan_id
@@ -385,12 +397,14 @@ def plans_edit(request, plan_id):
 
         schedules = Schedule.objects.filter(plan=plan_id).all()
         for schedule in schedules:
-            schedule.allowed_weekdays = schedule.get_allowed_weekdays()
-            schedule.denied_weekdays = schedule.get_denied_weekdays()
-            next_allowed_start_date_time = schedule.get_next_date_time(schedule.allowed_weekdays, schedule.allow_time_start)
-            next_allowed_end_date_time = schedule.get_next_date_time(schedule.allowed_weekdays, schedule.allow_time_stop)
-            next_denied_start_date_time = schedule.get_next_date_time(schedule.denied_weekdays, schedule.deny_time_start)
-            next_denied_end_date_time = schedule.get_next_date_time(schedule.denied_weekdays, schedule.deny_time_stop)
+            if schedule.is_allow:
+                schedule.weekdays = schedule.get_weekdays()
+                next_allowed_start_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_start)
+                next_allowed_end_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_stop)
+            if schedule.is_deny:
+                schedule.weekdays = schedule.get_weekdays()
+                next_denied_start_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_start)
+                next_denied_end_date_time = schedule.get_next_date_time(schedule.weekdays, schedule.time_stop)
 
         args['schedules'] = schedules
 

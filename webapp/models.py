@@ -223,53 +223,31 @@ class Plan(CommonInfo):
 
     def get_related_pumps(self):
         return self.pump.all()
-
-    def is_current_time_denied(self):
-        return True
+    
+    def activate(self):
+        plans = Plan.objects.all()
+        for plan in plans:
+            plan.is_active_plan = False
+            plan.save()
+        self.is_active_plan = True
+        self.save()
+    
+    def deactivate(self):
+        self.is_active_plan = False
+        self.save()
 
     def get_next_allowed_start_date_time(self):
         next_allowed_start_date_time = None
-        schedules = self.get_related_schedules()
-        for schedule in schedules:
-            schedule_next_allowed_date_time = schedule.get_next_date_time(schedule.get_allowed_weekdays(),
-                                                                          schedule.allow_time_start)
-            if (next_allowed_start_date_time == None) or (
-                    next_allowed_start_date_time > schedule_next_allowed_date_time):
-                next_allowed_start_date_time = schedule_next_allowed_date_time
+        if self.is_active_plan:
+            schedules = self.get_related_schedules()
+            for schedule in schedules:
+                if schedule.is_allow:
+                    schedule_next_date_time = schedule.get_next_date_time(schedule.get_weekdays(),
+                                                                                schedule.time_start)
+                    if (next_allowed_start_date_time == None) or (
+                            next_allowed_start_date_time > schedule_next_date_time):
+                        next_allowed_start_date_time = schedule_next_date_time
         return next_allowed_start_date_time
-
-    def get_next_denied_start_date_time(self):
-        next_denied_start_date_time = None
-        schedules = self.get_related_schedules()
-        for schedule in schedules:
-            schedule_next_denied_start_date_time = schedule.get_next_date_time(schedule.get_denied_weekdays(),
-                                                                               schedule.deny_time_start)
-            if (next_denied_start_date_time == None) or (
-                    next_denied_start_date_time > schedule_next_denied_start_date_time):
-                next_denied_start_date_time = schedule_next_denied_start_date_time
-        return next_denied_start_date_time
-
-    def get_next_allowed_end_date_time(self):
-        next_allowed_start_date_time = None
-        schedules = self.get_related_schedules()
-        for schedule in schedules:
-            schedule_next_allowed_date_time = schedule.get_next_date_time(schedule.get_allowed_weekdays(),
-                                                                          schedule.allow_time_stop)
-            if (next_allowed_start_date_time == None) or (
-                    next_allowed_start_date_time > schedule_next_allowed_date_time):
-                next_allowed_start_date_time = schedule_next_allowed_date_time
-        return next_allowed_start_date_time
-
-    def get_next_denied_end_date_time(self):
-        next_denied_start_date_time = None
-        schedules = self.get_related_schedules()
-        for schedule in schedules:
-            schedule_next_denied_start_date_time = schedule.get_next_date_time(schedule.get_denied_weekdays(),
-                                                                               schedule.deny_time_stop)
-            if (next_denied_start_date_time == None) or (
-                    next_denied_start_date_time > schedule_next_denied_start_date_time):
-                next_denied_start_date_time = schedule_next_denied_start_date_time
-        return next_denied_start_date_time
 
     def get_pumps_to_be_activated(self):
         schedules = self.get_related_schedules()
@@ -311,30 +289,22 @@ class PlanForm(forms.ModelForm):
 class Schedule(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
 
-    allow_monday = models.BooleanField(default=False)
-    allow_tuesday = models.BooleanField(default=False)
-    allow_wednesday = models.BooleanField(default=False)
-    allow_thursday = models.BooleanField(default=False)
-    allow_friday = models.BooleanField(default=False)
-    allow_saturday = models.BooleanField(default=False)
-    allow_sunday = models.BooleanField(default=False)
-    allow_time_start = models.TimeField(auto_now=False, auto_now_add=False)
-    allow_time_stop = models.TimeField(auto_now=False, auto_now_add=False)
+    is_deny = models.BooleanField(default=False)
+    is_allow = models.BooleanField(default=False)
 
-    deny_monday = models.BooleanField(default=False)
-    deny_tuesday = models.BooleanField(default=False)
-    deny_wednesday = models.BooleanField(default=False)
-    deny_thursday = models.BooleanField(default=False)
-    deny_friday = models.BooleanField(default=False)
-    deny_saturday = models.BooleanField(default=False)
-    deny_sunday = models.BooleanField(default=False)
-    deny_time_start = models.TimeField(auto_now=False, auto_now_add=False)
-    deny_time_stop = models.TimeField(auto_now=False, auto_now_add=False)
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    wednesday = models.BooleanField(default=False)
+    thursday = models.BooleanField(default=False)
+    friday = models.BooleanField(default=False)
+    saturday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
+    time_start = models.TimeField(auto_now=False, auto_now_add=False)
+    time_stop = models.TimeField(auto_now=False, auto_now_add=False)
 
-    allowed_weekdays = None
-    denied_weekdays = None
-    next_allowed_start_date_time = None
-    next_allowed_end_date_time = None
+    weekdays = None
+    next_start_date_time = None
+    next_end_date_time = None
     next_denied_start_date_time = None
     next_denied_end_date_time = None
 
@@ -364,53 +334,48 @@ class Schedule(models.Model):
             else:
                 weekday += 1
 
-    def get_allowed_weekdays(self):
-        allowed_weekdays = []
-        if self.allow_monday: allowed_weekdays.append(0)
-        if self.allow_tuesday: allowed_weekdays.append(1)
-        if self.allow_wednesday: allowed_weekdays.append(2)
-        if self.allow_thursday: allowed_weekdays.append(3)
-        if self.allow_friday: allowed_weekdays.append(4)
-        if self.allow_saturday: allowed_weekdays.append(5)
-        if self.allow_sunday: allowed_weekdays.append(6)
-        return allowed_weekdays
-
-    def get_denied_weekdays(self):
-        denied_weekdays = []
-        if self.deny_monday: denied_weekdays.append(0)
-        if self.deny_tuesday: denied_weekdays.append(1)
-        if self.deny_wednesday: denied_weekdays.append(2)
-        if self.deny_thursday: denied_weekdays.append(3)
-        if self.deny_friday: denied_weekdays.append(4)
-        if self.deny_saturday: denied_weekdays.append(5)
-        if self.deny_sunday: denied_weekdays.append(6)
-        return denied_weekdays
+    def get_weekdays(self):
+        weekdays = []
+        if self.monday: weekdays.append(0)
+        if self.tuesday: weekdays.append(1)
+        if self.wednesday: weekdays.append(2)
+        if self.thursday: weekdays.append(3)
+        if self.friday: weekdays.append(4)
+        if self.saturday: weekdays.append(5)
+        if self.sunday: weekdays.append(6)
+        return weekdays
 
     def is_allowed_time(self):
-        next_allowed_start_date_time = self.get_next_date_time(self.get_allowed_weekdays(), self.allow_time_start)
-        next_allowed_end_date_time = self.get_next_date_time(self.get_allowed_weekdays(), self.allow_time_stop)
-        if next_allowed_start_date_time != None:
-            is_same_day = next_allowed_start_date_time <= next_allowed_end_date_time
-        else:
-            return False
+        if is_allow:
+            next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            if next_start_date_time != None:
+                is_same_day = next_start_date_time <= next_end_date_time
+            else:
+                return False
 
-        if is_same_day:
-            return False
+            if is_same_day:
+                return False
+            else:
+                return True
         else:
-            return True
+            return False
 
     def is_denied_time(self):
-        next_denied_start_date_time = self.get_next_date_time(self.get_denied_weekdays(), self.deny_time_start)
-        next_denied_end_date_time = self.get_next_date_time(self.get_denied_weekdays(), self.deny_time_stop)
-        if next_denied_start_date_time != None:
-            is_same_day = next_denied_start_date_time <= next_denied_end_date_time
-        else:
-            return False
+        if is_deny:
+            next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            if next_start_date_time != None:
+                is_same_day = next_start_date_time <= next_end_date_time
+            else:
+                return False
 
-        if is_same_day:
-            return False
+            if is_same_day:
+                return False
+            else:
+                return True
         else:
-            return True
+            return False
 
 
 class ScheduleForm(forms.ModelForm):
@@ -423,21 +388,21 @@ class ScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Schedule
-        fields = ['plan', 'allow_monday', 'allow_tuesday', 'allow_wednesday', 'allow_thursday',
-                  'allow_friday', 'allow_saturday', 'allow_sunday', 'allow_time_start', 'allow_time_stop',
-                  'deny_monday', 'deny_tuesday', 'deny_wednesday', 'deny_thursday',
-                  'deny_friday', 'deny_saturday', 'deny_sunday', 'deny_time_start', 'deny_time_stop']
+        fields = ['is_allow', 'is_deny', 'plan', 'monday', 'tuesday', 'wednesday', 'thursday',
+                  'friday', 'saturday', 'sunday', 'time_start', 'time_stop']
         labels = {
+        "is_allow": "Zeitplan für erlaubten Zeitraum",
+        "is_deny": "Zeitplan für verbotenen Zeitraum",
         "plan": "Plan", 
-        "allow_monday": "Montag erlauben", 
-        "allow_tuesday": "Dienstag erlauben", 
-        "allow_wednesday": "Mittwoch erlauben", 
-        "allow_thursday": "Donnerstag erlauben",
-        "allow_friday": "Freitag erlauben", 
-        "allow_saturday": "Samstag erlauben", 
-        "allow_sunday": "Sonntag erlauben", 
-        "allow_time_start": "Startzeit", 
-        "allow_time_stop": "Stoppzeit",
+        "monday": "Montag erlauben", 
+        "tuesday": "Dienstag erlauben", 
+        "wednesday": "Mittwoch erlauben", 
+        "thursday": "Donnerstag erlauben",
+        "friday": "Freitag erlauben", 
+        "saturday": "Samstag erlauben", 
+        "sunday": "Sonntag erlauben", 
+        "time_start": "Startzeit", 
+        "time_stop": "Stoppzeit",
         "deny_monday": "Montag verweigern", 
         "deny_tuesday": "Dienstag verweigern", 
         "deny_wednesday": "Mittwoch verweigern", 

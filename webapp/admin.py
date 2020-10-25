@@ -10,7 +10,7 @@ from .models import *
 
 #admin.site.register(Sensor)
 
-#admin.site.register(Plan)
+admin.site.register(Plan)
 
 #admin.site.register(Schedule)
 
