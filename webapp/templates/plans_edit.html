@@ -139,4 +139,33 @@
 
 {% include "views/footer.html" %}
 
+<script>
+function myFunction() {
+  // Get the checkbox
+  var checkBox = document.getElementById("id_automation_rain");
+  // Get the output text
+  var element1 = document.getElementById("id_timespace_rain_forecast");
+  var labels = document.getElementsByTagName('label');
+  var label = null;
+    for (var i = 0; i < labels.length; i++)
+      if (labels[i].htmlFor == "id_timespace_rain_forecast") {
+        label = labels[i];
+        break;
+      }
+
+  // If the checkbox is checked, display the output text
+  if (checkBox.checked == true){
+    element1.style.display = "block";
+    label.style.display = "block";
+  } else {
+    element1.style.display = "none";
+    label.style.display = "none";
+  }
+} 
+
+window.onload = function() {
+  myFunction();
+};
+</script>
+
 {% include "views/bottom.html" %}
