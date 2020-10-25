@@ -515,3 +515,10 @@ class UserSettings(models.Model):
     """ UserSettings Model """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     owm_api_key = models.CharField(max_length=32, blank=True)
+
+
+class WateringStatistic(models.Model):
+    """ WateringStatistics Model """
+    start_time = models.DateTimeField(auto_now=True)
+    valve_fk = models.ForeignKey(Valve, on_delete=models.CASCADE)
+    duration = models.DecimalField(max_digits=5, decimal_places=2)
