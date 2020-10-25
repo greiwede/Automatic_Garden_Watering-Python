@@ -66,3 +66,13 @@ def read_weather():
                     location_fk=loc, humidity=humidity, pressure=pressure,
                     rain=rain, temperature=temperature, wind=wind, last_update_time=reference_time_obj,
                     weather_status_fk=weather_status_fk)
+
+    # Wettterzaehler updaten
+    try:
+        wc = WeatherCounter.objects.last()
+        wc.modify_weather_counter()
+        wc.save()
+    except:
+        wc = WeatherCounter.objects.create(weather_counter=0)
+        wc.modify_weather_counter()
+        wc.save()
