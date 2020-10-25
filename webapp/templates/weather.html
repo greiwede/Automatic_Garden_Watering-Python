@@ -9,6 +9,52 @@
 <br><br>
 
 
+{% if location_name %}
+  <div class="alert alert-dark" role="alert">
+  📍 {{ location_name }}
+  </div>
+{% endif %}
+
+{% if weathers %}
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Uhrzeit</th>
+      <th scope="col">Status</th>
+      <th scope="col">Temperatur</th>
+      <th scope="col">Niederschlag</th>
+      <th scope="col">Luftfeuchtigkeit</th>
+      <th scope="col">Wind</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    {% for weather in weathers %}
+      <tr scope="row">
+      <td>{{ weather.reference_time }}</td>
+      <td>
+          {% if weather.weather_status_fk %}
+          <img src="http://openweathermap.org/img/wn/{{ weather.weather_status_fk.icon }}{{ daytime }}.png" >{{ weather.weather_status_fk.description }}
+          {% endif %}
+      </td>
+      <td>{{ weather.temperature }}°C</td>
+      <td>{{ weather.rain }} mm</td>
+      <td>{{ weather.humidity }} %</td>
+      <td>{{ weather.wind }} km/Std.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p>Es wurden keine Pläne gefunden.</p>
+
+
+{% endif %}
 
       
 {% include "views/footer.html" %}

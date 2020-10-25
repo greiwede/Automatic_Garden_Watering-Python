@@ -470,6 +470,23 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
 @login_required(login_url='/admin/login/')
 def weather(request):
     args = {}
+
+    try:
+        loc = Location.objects.all()[:1][0]
+        args['location_name'] = loc.__str__()
+    except:
+        pass
+
+    weathers = WeatherData.objects.all()
+    args['weathers'] = weathers
+
+    # Get time of day
+    hour = datetime.now().hour
+    if hour <= 8 or hour >= 21:
+        args['daytime'] = 'n' # Night
+    else:
+        args['daytime'] = 'd' # Day
+
     return TemplateResponse(request, "weather.html", args)
 
 @login_required(login_url='/admin/login/')

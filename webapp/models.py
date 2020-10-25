@@ -2,8 +2,11 @@ from django.db import models
 from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 import datetime
+
+import pytz
 
 # Status Choices for Plans & Devices
 STATUS_CHOICES = [
@@ -93,6 +96,22 @@ class Valve(Device):
     watering_time = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, blank=True, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
+
+    activate_date_time = models.DateTimeField(blank=True, null=True)
+
+    def activate(self):
+        if self.curr_active == False:
+            self.curr_active = True
+            self.activate_date_time = timezone.now()
+            self.save()
+    
+    def deactivate(self):
+        self.curr_active = False
+        time_difference = timezone.now() - self.activate_date_time
+        WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
+        self.activate_date_time = None
+        self.save()
+
 
 
 class ValveForm(forms.ModelForm):
@@ -393,25 +412,15 @@ class ScheduleForm(forms.ModelForm):
         labels = {
         "is_allow": "Zeitplan für erlaubten Zeitraum",
         "is_deny": "Zeitplan für verbotenen Zeitraum",
-        "plan": "Plan", 
-        "monday": "Montag erlauben", 
-        "tuesday": "Dienstag erlauben", 
-        "wednesday": "Mittwoch erlauben", 
-        "thursday": "Donnerstag erlauben",
-        "friday": "Freitag erlauben", 
-        "saturday": "Samstag erlauben", 
-        "sunday": "Sonntag erlauben", 
+        "monday": "Montag", 
+        "tuesday": "Dienstag", 
+        "wednesday": "Mittwoch", 
+        "thursday": "Donnerstag",
+        "friday": "Freitag", 
+        "saturday": "Samstag", 
+        "sunday": "Sonntag", 
         "time_start": "Startzeit", 
         "time_stop": "Stoppzeit",
-        "deny_monday": "Montag verweigern", 
-        "deny_tuesday": "Dienstag verweigern", 
-        "deny_wednesday": "Mittwoch verweigern", 
-        "deny_thursday": "Donnerstag verweigern",
-        "deny_friday": "Freitag verweigern", 
-        "deny_saturday": "Samstag verweigern", 
-        "deny_sunday": "Sonntag verweigern", 
-        "deny_time_start": "Verweigerungszeit Start", 
-        "deny_time_stop": "Verweigerungszeit Stop"
         }
 
 class Location(models.Model):
@@ -485,6 +494,6 @@ class UserSettings(models.Model):
 
 class WateringStatistic(models.Model):
     """ WateringStatistics Model """
-    start_time = models.DateTimeField(auto_now=True)
-    valve_fk = models.ForeignKey(Valve, on_delete=models.CASCADE)
-    duration = models.DecimalField(max_digits=5, decimal_places=2)
+    start_time = models.DateTimeField()
+    valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
+    duration_seconds = models.DecimalField(max_digits=5, decimal_places=2)
