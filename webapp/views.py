@@ -461,15 +461,21 @@ def weather(request):
 @login_required(login_url='/admin/login/')
 def settings(request):
     def get_location_data(lat, lon, loc):
+        """ Get location name data and utc offset and set it in the model """
         lat = float(lat)
         lon = float(lon)
 
         loc.latitude = lat
         loc.longitude = lon
-       
-        geolocator = Nominatim(user_agent="openmapquest", timeout=3)
-        location = geolocator.reverse('{}, {}'.format(lat, lon), language='de')
-        address = address = location.raw['address']
+
+        # Get location name data and set it in the model
+        try:
+            geolocator = Nominatim(user_agent="openmapquest", timeout=3)
+            location = geolocator.reverse('{}, {}'.format(lat, lon), language='de')
+            address = address = location.raw['address']
+        except:
+            address = {}
+
         if 'city' in address:
             loc.city = address['city']    
         elif 'town' in address:
@@ -513,7 +519,7 @@ def settings(request):
             args['filter_latitude'] = ''
             args['filter_longitude'] = ''
     elif request_latitude == '' and request_longitude == '':
-        # No Location given. Delete existing Location and make fiels empty
+        # No Location given. Delete existing Location and empty fiels
         print("no location given")
         try:
             loc = Location.objects.all()[:1][0]
