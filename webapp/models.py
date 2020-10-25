@@ -56,6 +56,11 @@ class PumpForm(forms.ModelForm):
     class Meta:
         model = Pump
         fields = ['name', 'contr_id', 'flow_capacity']
+        labels = {
+        'name': 'Name der Pumpe', 
+        'contr_id': 'Controller ID', 
+        'flow_capacity': 'Durchflussmenge in L/min'
+        }
 
 
 class Sensor(Device):
@@ -75,6 +80,10 @@ class SensorForm(forms.ModelForm):
     class Meta:
         model = Sensor
         fields = ['name', 'contr_id']
+        labels = {
+        'name': 'Name des Sensors', 
+        'contr_id': 'Controller ID'
+        }
 
 
 class Valve(Device):
@@ -97,6 +106,12 @@ class ValveForm(forms.ModelForm):
     class Meta:
         model = Valve
         fields = ['name', 'contr_id', 'sensor_fk', 'pump_fk']
+        labels = {
+        'name': 'Name des Ventils', 
+        'contr_id': 'Controller ID', 
+        'sensor_fk': 'Zugehöriger Sensor', 
+        'pump_fk': 'Zugehörige Pumpe'
+        }
 
 
 # Sprinkler Model
@@ -120,6 +135,12 @@ class SprinklerForm(forms.ModelForm):
     class Meta:
         model = Sprinkler
         fields = ['name', 'contr_id', 'flow_capacity', 'valve_fk']
+        labels = {
+        'name': 'Name des Sprinklers', 
+        'contr_id': 'Controller ID', 
+        'flow_capacity': 'Durchflusskapzität in L/min', 
+        'valve_fk': 'Zugehörige Pumpe'
+        }
 
 
 class WeatherCounter(models.Model):
@@ -405,6 +426,27 @@ class ScheduleForm(forms.ModelForm):
                   'allow_friday', 'allow_saturday', 'allow_sunday', 'allow_time_start', 'allow_time_stop',
                   'deny_monday', 'deny_tuesday', 'deny_wednesday', 'deny_thursday',
                   'deny_friday', 'deny_saturday', 'deny_sunday', 'deny_time_start', 'deny_time_stop']
+        labels = {
+        "plan": "Plan", 
+        "allow_monday": "Montag erlauben", 
+        "allow_tuesday": "Dienstag erlauben", 
+        "allow_wednesday": "Mittwoch erlauben", 
+        "allow_thursday": "Donnerstag erlauben",
+        "allow_friday": "Freitag erlauben", 
+        "allow_saturday": "Samstag erlauben", 
+        "allow_sunday": "Sonntag erlauben", 
+        "allow_time_start": "Startzeit", 
+        "allow_time_stop": "Stoppzeit",
+        "deny_monday": "Montag verweigern", 
+        "deny_tuesday": "Dienstag verweigern", 
+        "deny_wednesday": "Mittwoch verweigern", 
+        "deny_thursday": "Donnerstag verweigern",
+        "deny_friday": "Freitag verweigern", 
+        "deny_saturday": "Samstag verweigern", 
+        "deny_sunday": "Sonntag verweigern", 
+        "deny_time_start": "Verweigerungszeit Start", 
+        "deny_time_stop": "Verweigerungszeit Stop"
+        }
 
 class Location(models.Model):
     """ Location Model """
