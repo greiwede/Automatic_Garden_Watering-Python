@@ -343,6 +343,29 @@ class Plan(CommonInfo):
                             next_allowed_start_date_time > schedule_next_date_time):
                         next_allowed_start_date_time = schedule_next_date_time
         return next_allowed_start_date_time
+    
+    def get_next_denied_start_date_time(self):
+        next_denied_start_date_time = None
+        if self.is_active_plan:
+            schedules = self.get_related_schedules()
+            for schedule in schedules:
+                if schedule.is_deny:
+                    schedule_next_date_time = schedule.get_next_date_time(schedule.get_weekdays(),
+                                                                                schedule.time_start)
+                    if (next_allowed_start_date_time == None) or (
+                            next_allowed_start_date_time > schedule_next_date_time):
+                        next_allowed_start_date_time = schedule_next_date_time
+        return next_allowed_start_date_time
+    
+    def is_allow_time(self):
+        schedules = self.get_related_schedules()
+        for schedule in schedules:
+            allow_time = False
+            if schedule.is_denied_time():
+                return False
+            if schedule.is_allowed_time():
+                allow_time = True
+        return allow_time
 
 
 class PlanForm(forms.ModelForm):
