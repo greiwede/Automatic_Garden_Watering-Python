@@ -30,11 +30,11 @@ def transfer_plan(plan):
 
     pumpen_str = "Pumpen: "
     for pump in pumps:
-        pumpen_str += pump.contr_id + ","
+        pumpen_str += str(pump.contr_id) + ","
 
     valves_str = "Ventile: "
     for valve in valves:
-        valves_str += valve.contr_id + ","
+        valves_str += str(valve.contr_id) + ","
 
     schedules_str = ""
     for schedule in schedules:
@@ -44,11 +44,11 @@ def transfer_plan(plan):
             schedule_temp = "DENY;"
 
         for weekday in schedule.get_weekdays():
-            schedule_temp += weekday + ","
+            schedule_temp += str(weekday) + ","
 
         schedule_temp += ";"
-        schedule_temp += schedule.start_time + ";"
-        schedule_temp += schedule.end_time
+        schedule_temp += str(schedule.start_time) + ";"
+        schedule_temp += str(schedule.end_time)
 
         schedules_str += schedule_temp + "\n"
 
