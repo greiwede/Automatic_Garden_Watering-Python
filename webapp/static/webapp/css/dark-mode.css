@@ -41,9 +41,9 @@
   border-top: 0px
 }
 
-[data-theme="dark"] input, select {
-  background-color: #292929!important;
-  color: white !important;
+[data-theme="dark"] form-control {
+  background-color: #292929;
+  color: white;
 }
 
 [data-theme="dark"] input:read-only {

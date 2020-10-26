@@ -94,7 +94,7 @@
 
 
         <a class="btn-sm btn-secondary" href="{% url 'device_edit' edit_key device.id %}" role="button">Bearbeiten</a>
-        <a onclick="return confirm('Soll das Gerät {{ device.name }} gelöscht werden?')" class="btn-sm btn-secondary" href="{% url 'device_delete' edit_key device.id %}" role="button">Löschen</a>
+        <a onclick="return confirm('Soll das Gerät {{ device.name }} gelöscht werden?')" class="btn-sm btn-danger" href="{% url 'device_delete' edit_key device.id %}" role="button">Löschen</a>
 
       </td>
     </tr>
