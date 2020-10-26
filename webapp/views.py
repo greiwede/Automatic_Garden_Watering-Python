@@ -97,6 +97,17 @@ def dashboard(request):
             args['daytime'] = 'n' # Night
         else:
             args['daytime'] = 'd' # Day
+        
+        # Set greeting
+        if ( hour > 0 and hour < 6 ) or ( hour > 8 and hour <= 23 ):
+            args['greeting'] = "Guten Abend"
+        elif hour >= 6 and hour < 13:
+            args['greeting'] = "Guten Morgen"
+        elif hour >= 13 and hour < 15:
+            args['greeting'] = "Guten Mittag"
+        else:
+            args['greeting'] = "Guten Tag"
+
     except:
         pass
 
