@@ -74,12 +74,23 @@
       </td>
       <td>Vorgestern um 11:45 Uhr</td>
       <td>
-        
-        {% if device.curr_active == False %}
-        <a class="btn-sm btn-success" href="{% url 'device_start' edit_key device.id %}" role="button">Start</a>
-        {% else %}
-        <a class="btn-sm btn-danger" href="{% url 'device_stop' edit_key device.id %}" role="button">Stop</a>
+
+        {% if filter_device == 'Pumpe' %}
+            {% if device.curr_active == False %}
+                <a class="btn-sm btn-success" href="{% url 'device_start' edit_key device.id %}" role="button">Start</a>
+            {% else %}
+                <a class="btn-sm btn-danger" href="{% url 'device_stop' edit_key device.id %}" role="button">Stop</a>
+            {% endif %}
         {% endif %}
+
+        {% if filter_device == 'Ventil' %}
+            {% if device.curr_active == False %}
+                <a class="btn-sm btn-success" href="{% url 'device_start' edit_key device.id %}" role="button">Öffnen</a>
+            {% else %}
+                <a class="btn-sm btn-danger" href="{% url 'device_stop' edit_key device.id %}" role="button">Schließen</a>
+            {% endif %}
+        {% endif %}
+        
 
 
         <a class="btn-sm btn-secondary" href="{% url 'device_edit' edit_key device.id %}" role="button">Bearbeiten</a>

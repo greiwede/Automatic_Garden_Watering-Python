@@ -72,7 +72,7 @@ def transfer_plan(plan):
 
     print("Message to controller:\n" + message_str)
 
-    #subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
 
 
 def delete_plan():
@@ -80,7 +80,7 @@ def delete_plan():
     message_str = header_str
     print("Message to controller:\n" + message_str)
 
-    #subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
 
 
 
