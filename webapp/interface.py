@@ -21,12 +21,13 @@ def set_valve(valve_id, action):
         print("set_valve ERROR")  # Fehlermeldung
 
 
-def transfer_plan():
-    # Welche ventile?
-    # Welche Pumpen?
-    # Wann muss gesprengt werden? -> Zeiten
-    # Sperrzeiten
-    pass
+def transfer_plan(plan):
+    pumps = []
+    valves = plan.valve.all()
+    for valve in valves:
+        pumps.append(valve.pump_fk)
+    schedules = plan.get_related_schedules()
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', pumps, valves, schedules])
 
 
 def get_humidity(sensor_id):
