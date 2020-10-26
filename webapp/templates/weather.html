@@ -9,11 +9,17 @@
 <br><br>
 
 
+
 {% if location_name %}
-  <div class="alert alert-dark" role="alert">
-  📍 {{ location_name }}
+<div class="card">
+  <div class="card-body">
+    📍 {{ location_name }}
   </div>
+</div>
+
 {% endif %}
+
+<br>
 
 {% if weathers %}
 
@@ -22,11 +28,11 @@
     <tr>
       <th scope="col">Uhrzeit</th>
       <th scope="col">Status</th>
+      <th scope="col"></th>
       <th scope="col">Temperatur</th>
       <th scope="col">Niederschlag</th>
       <th scope="col">Luftfeuchtigkeit</th>
       <th scope="col">Wind</th>
-      <th scope="col"></th>
     </tr>
   </thead>
 
@@ -37,7 +43,10 @@
       <td>{{ weather.reference_time }}</td>
       <td>
           {% if weather.weather_status_fk %}
-          <img src="http://openweathermap.org/img/wn/{{ weather.weather_status_fk.icon }}{{ daytime }}.png" >{{ weather.weather_status_fk.description }}
+          <img style="margin-top:-10px" src="http://openweathermap.org/img/wn/{{ weather.weather_status_fk.icon }}{{ daytime }}.png" >
+        </td>
+        <td>
+          {{ weather.weather_status_fk.description }}
           {% endif %}
       </td>
       <td>{{ weather.temperature }}°C</td>
