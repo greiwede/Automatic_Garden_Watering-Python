@@ -39,9 +39,10 @@ How to setup a working Sprinkler application.
 3. Change Directory
 <pre>cd spinklerenv</pre>
 4. Activate Virtual Environment
-<pre>.\env\Scripts\activate</pre>
-5. [Download latest release](https://github.com/lennartvonwerder/python-sprinkler/releases/latest), unzip it and place the folder into the `.\sprinklerenv\` directory
-6. Enter the directory
+Windows Command Prompt:<pre>Scripts\activate.bat</pre>
+Windows PowerShell:<pre>Scripts\activate.ps1</pre>
+5. [Download latest release](https://github.com/lennartvonwerder/python-sprinkler/releases/latest), unzip it and place the folder into the current directory
+6. Enter the code directory
 <pre>cd python-sprinkler</pre>
 7. Install all required Python modules
 <pre>pip install -r requirements.txt</pre>
