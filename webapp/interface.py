@@ -22,6 +22,10 @@ def set_valve(valve_id, action):
 
 
 def transfer_plan():
+    # Welche ventile?
+    # Welche Pumpen?
+    # Wann muss gesprengt werden? -> Zeiten
+    # Sperrzeiten
     pass
 
 

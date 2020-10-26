@@ -4,6 +4,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from .interface import *
+
 import datetime
 
 import pytz
@@ -51,11 +53,13 @@ class Pump(Device):
         if self.curr_active == False:
             self.curr_active = True
             self.save()
+            set_pump(str(self.id), "ON")
 
     def deactivate(self):
         if self.curr_active == True:
             self.curr_active = False
             self.save()
+            set_pump(str(self.id), "OFF")
             attached_valves = self.get_attached_valves()
             for valve in attached_valves:
                 valve.deactivate()

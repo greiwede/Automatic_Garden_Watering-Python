@@ -30,14 +30,12 @@ def print_test():
 def deactivate_valve(valve_id, watering_time):
     time.sleep(watering_time * 1)  # warte Zeit in Sekunden
     valve = Valve.objects.get(pk=valve_id)
-    valve.curr_active = False
-    valve.save()
     file = open("test.txt", "a")
     file.write(valve.name)
     file.write(str(watering_time))
-    file.write("  SChalte das Ventil wieder aus \n")
+    file.write("  Schalte das Ventil wieder aus \n")
     file.close()
-    # valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
+    valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
     set_valve(valve_id, "OFF") # Sende an Microcontroller
 
 
@@ -105,7 +103,7 @@ def aut_irrigation():
                     # Pumpe bereits eingeschaltet?
                     if pump_deactivated(pump):
                         # Pumpe einschalten
-                        start_pump(pump)
+                        set_pump(str(pump.pk), "ON")
                     # Pumpe ausgelastet oder keine Wassermenge > 0?
                     pump_workload_temp = pump_workload(pump)
                     for valve in valve_list_sort:
@@ -119,7 +117,8 @@ def aut_irrigation():
                             file.write("\n")
                             file.close()
                             # starte bestimmtes Ventil
-                            start_valve(valve.pk, valve.watering_time)
+                            set_valve(str(valve.pk), "ON")
+                            #start_valve(valve.pk, valve.watering_time)
                             deactivate_valve.delay(valve.pk, int(valve.watering_time))
                             # Setze Ventil-Zaehler zurueck
                             pump_workload_temp = pump_workload_temp + get_valve_flow_capacity(valve)
