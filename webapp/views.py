@@ -12,7 +12,7 @@ import sys
 sys.path.append("..")
 
 from .models import *
-from .interface import *
+from sprinkler.controller.interface import *
 from sprinkler.cron import read_weather
 
 import json

@@ -1,13 +1,15 @@
 import os
 import subprocess
 import time
-from .models import *
+import sys
+sys.path.append("..")
+from webapp.models import *
 
 # Pfad Problem!
 
 def set_pump(pump_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "\\webapp\\set_pump.py"
+        path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\set_pump.py"
         subprocess.call(['python', path, pump_id, action])
         print("Pumpe: " + pump_id + " --> " + action)  # Ausgabe in Konsole
     else:
@@ -16,7 +18,7 @@ def set_pump(pump_id, action):
 
 def set_valve(valve_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "\\webapp\\set_valve.py"
+        path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\set_valve.py"
         subprocess.call(['python', path, valve_id, action])
         print("Ventil: " + valve_id + " --> " + action)  # Ausgabe in Konsole
     else:
@@ -28,9 +30,8 @@ def transfer_plan(plan):
     pumps = []
     valves = plan.valve.all()
     for valve in valves:
-        if not valve.pump_fk.contr_id in pumps:
-            pumps.append(valve.pump_fk.contr_id)
-    print("test")
+        if not valve.pump_fk in pumps:
+            pumps.append(valve.pump_fk)
     schedules = plan.get_related_schedules()
 
     # Create string
@@ -76,7 +77,7 @@ def transfer_plan(plan):
 
     print("Message to controller:\n" + message_str)
 
-    path = os.path.abspath(os.curdir) + "\\webapp\\transfer_plan.py"
+    path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\transfer_plan.py"
 
     subprocess.call(['python', path, message_str])
 
@@ -86,7 +87,7 @@ def delete_plan():
     message_str = header_str
     print("Message to controller:\n" + message_str)
 
-    path = os.path.abspath(os.curdir) + "\\webapp\\transfer_plan.py"
+    path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\transfer_plan.py"
 
     subprocess.call(['python', path, message_str])
 

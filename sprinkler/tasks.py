@@ -3,9 +3,10 @@ from __future__ import absolute_import, unicode_literals
 from datetime import date
 
 from celery import shared_task
-
-from .models import *
-from .interface import *
+import sys
+sys.path.append("..")
+from webapp.models import *
+from sprinkler.controller.interface import *
 from django.db.models import Sum
 import time
 

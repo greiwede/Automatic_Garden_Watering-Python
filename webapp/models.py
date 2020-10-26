@@ -4,7 +4,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-from .interface import *
+import sys
+sys.path.append("..")
+from sprinkler.controller.interface import *
 
 import datetime
 
