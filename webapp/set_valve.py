@@ -16,4 +16,4 @@ def set_valve(valve_id, action):
     # print(b'STATUS-SET:' + boolean)
     pass
 
-
+set_valve(valve_id_sys, action_sys)

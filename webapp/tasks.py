@@ -5,6 +5,7 @@ from datetime import date
 from celery import shared_task
 
 from .models import *
+from .interface import *
 from django.db.models import Sum, Max
 import time  # test
 
@@ -37,7 +38,7 @@ def deactivate_valve(valve_id, watering_time):
     file.write("  SChalte das Ventil wieder aus \n")
     file.close()
     # valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
-    # stop_valve(valve) # Sende an Microcontroller
+    set_valve(valve_id, "OFF") # Sende an Microcontroller
 
 
 @shared_task

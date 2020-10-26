@@ -7,7 +7,7 @@ from .models import *
 
 def set_pump(pump_id, action):
     if action == "ON" or action == "OFF":
-        subprocess.call(['python2.7', '/home/pi/Dev/sprinkler-sprinkler/webapp/set_pump.py', pump_id, action])
+        subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/set_pump.py', pump_id, action])
         print("Pumpe: " + pump_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_pump ERROR")  # Fehlermeldung
@@ -15,7 +15,7 @@ def set_pump(pump_id, action):
 
 def set_valve(valve_id, action):
     if action == "ON" or action == "OFF":
-        subprocess.call(['python2.7', '/home/pi/Dev/sprinkler-sprinkler/webapp/set_valve.py', valve_id, action])
+        subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/set_valve.py', valve_id, action])
         print("Ventil: " + valve_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_valve ERROR")  # Fehlermeldung

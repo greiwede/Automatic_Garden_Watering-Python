@@ -16,4 +16,5 @@ def set_pump(pump_id, action):
     #print(b'STATUS-SET:' + boolean)
     pass
 
+set_pump(pump_id_sys, action_sys)
 
