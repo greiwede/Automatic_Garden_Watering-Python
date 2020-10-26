@@ -7,43 +7,32 @@ from django.forms import inlineformset_factory
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-
 import sys
 sys.path.append("..")
-
 from .models import *
 from sprinkler.controller.interface import *
 from sprinkler.cron import read_weather
-
 import json
-
 from geopy.geocoders import Nominatim
-
 from pyowm.owm import OWM
-
 from datetime import datetime, timedelta
-
 from timezonefinder import TimezoneFinder
-
 from pytz import timezone, utc
 
-# Create your views here.
 
+# Displays the index page. Redirects the user if signed in.
 def index(request):
-
     if request.user.is_authenticated:
         return redirect('dashboard')
-
     template = loader.get_template("index.html")
     return HttpResponse(template.render())
 
 @login_required(login_url='/admin/login/')
 def dashboard(request):
-    args = {}
-
+    # Display the dashboard page. Login required.
+    args = {}   
     # Read user config from config file
-    args['first_name'] = request.user.first_name.capitalize()
-
+    args['first_name'] = request.user.first_name.capitalize()    
     # Get next watering time data
     plans = Plan.objects.all()
     next_allowed_start_date_time = None
@@ -55,18 +44,15 @@ def dashboard(request):
             continue
         elif next_allowed_start_date_time > plan_next_allowed_start_date_time:
             next_allowed_start_date_time = plan_next_allowed_start_date_time
-
     if next_allowed_start_date_time != None:
         args['water_time_year'] = str(next_allowed_start_date_time.year)
         args['water_time_month'] = str("{:02d}".format(next_allowed_start_date_time.month))
         args['water_time_day'] = str("{:02d}".format(next_allowed_start_date_time.day))
         args['water_time_hour'] = str("{:02d}".format(next_allowed_start_date_time.hour))
         args['water_time_minute'] = str("{:02d}".format(next_allowed_start_date_time.minute))
-
     # Get location data
     try:
         loc = Location.objects.all()[:1][0]
-
         if loc.city != '':
             args['location_town'] = loc.city    
         elif loc.town != '':
@@ -83,21 +69,18 @@ def dashboard(request):
             args['location_country'] = loc.country
     except:
         pass
-
     try:
         weather = WeatherData.objects.latest('reference_time')
         args['temperature'] = weather.temperature
         weather_status = weather.weather_status_fk
         args['weather_status'] = weather_status.description
         args['weather_status_icon'] = weather_status.icon
-
         # Get time of day
         hour = datetime.now().hour
         if hour <= 8 or hour >= 21:
             args['daytime'] = 'n' # Night
         else:
-            args['daytime'] = 'd' # Day
-        
+            args['daytime'] = 'd' # Day    
         # Get greeting
         if ( hour >= 0 and hour < 6 ) or ( hour > 8 and hour <= 23 ):
             args['greeting'] = "Guten Abend"
@@ -107,34 +90,32 @@ def dashboard(request):
             args['greeting'] = "Guten Mittag"
         else:
             args['greeting'] = "Guten Tag"
-
     except:
         pass
-
     args['water_amount'] = 0
     ws_amount = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=7))
     for ws in ws_amount:
         args['water_amount'] += ws.get_water_amount()
-
+    # Returns the corresponding template including the arguments.
     return TemplateResponse(request, "dashboard.html", args)
 
 @login_required(login_url='/admin/login/')
 def devices(request):
-    
-    # Edit Key:
-    # Pumpe = 2
-    # Sensor = 1
+    # Shows the devices (sprinkler, sensors, pumps, valves). Login Required.
+    # Edit Key: Defines the type of device for editing, controlling or deleting.
+    # The edit key is used in other views as well.
     # Sprinkler = 0
-    
+    # Sensor = 1
+    # Pumpe = 2
+    # Ventil = 3 
     args = {}
-
-    # GET variables
+    # GET variables of the filter (filter by name).
     args['filter_name'] = request.GET.get('name', '')
     args['filter_device'] = request.GET.get('device', '')
     args['filter_status'] = request.GET.get('status', '')
-
+    # Parameter that checks whether a filter is activated
     check = 0
-
+    # Switch statement to show the right type of device.
     if args['filter_device'] == 'Ventil':
         devices = Valve.objects
         args['edit_key'] = 3
@@ -143,69 +124,68 @@ def devices(request):
         devices = Pump.objects
         args['edit_key'] = 2
         args['type_name'] = 'pump'
-
     elif args['filter_device'] == 'Sensor':
         devices = Sensor.objects
         args['edit_key'] = 1
         args['type_name'] = 'sensor'
-
     elif args['filter_device'] == 'Sprinkler':
         devices = Sprinkler.objects
         args['edit_key'] = 0
-        args['type_name'] = 'sprinkler'
-    
+        args['type_name'] = 'sprinkler'  
     elif args['filter_device'] == '':
         devices = Sprinkler.objects
         args['edit_key'] = 0
         args['filter_device'] = 'Sprinkler'
         args['type_name'] = 'sprinkler'
-
+    # If a filter is set, the filtering happens next:
     if args['filter_name'] != '':
         devices = devices.filter(name__contains=args['filter_name'])
         check = 1
     if args['filter_status'] == 'OK' or args['filter_status'] == 'Warnung' or args['filter_status'] == 'Fehler':
         devices = devices.filter(status__contains=args['filter_status'])
         check = 1
-
+    # If no filter is activated all the devices of the choosen type are collected.
     if(check == 0):
         devices = devices.all()
-
     args['devices'] = devices
-
+    # Renders the corresponding template.
     return TemplateResponse(request, "devices.html", args)
+
 
 @login_required(login_url='/admin/login/')
 def device_start(request, device_type, device_id):
+    # Starts a device (Valves & Pumps only). Login Required.
     args = {}
-
+    # Switch statement to identify the device type (edit key)
     if device_type == 0:
         sprinkler = Sprinkler.objects.get(id=device_id)
-        sprinkler.activate()
+        sprinkler.activate() # Activation method
         print('Sprinkler mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Sprinkler')
     elif device_type == 1:
         sensor = Sensor.objects.get(id=device_id)
-        sensor.activate()
+        sensor.activate() # Activation method
         print('Sensor mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Sensor')
     elif device_type == 2:
         pump = Pump.objects.get(id=device_id)
-        pump.activate()
+        pump.activate() # Activation method
         print('Pumpe mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Pumpe')
     elif device_type == 3:
         valve = Valve.objects.get(id=device_id)
-        valve.activate()
+        valve.activate() # Activation method
         set_valve(str(device_id), "ON")
         print('Ventil mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Ventil')
-
+    # Redirects to the devices page.
     return redirect('devices')
 
 @login_required(login_url='/admin/login/')
 def device_stop(request, device_type, device_id):
+    # Stops a device (Valves & Pumps only).
     args = {}
-
+    # Switch statement to identify the device type (edit key)
     if device_type == 0:
         sprinkler = Sprinkler.objects.get(id=device_id)
         sprinkler.deactivate()
@@ -232,6 +212,7 @@ def device_stop(request, device_type, device_id):
 
 @login_required(login_url='/admin/login/')
 def device_create(request, device_type):
+    # Creates and saves a new device
     args = {}
     args['device_type'] = device_type
 
@@ -272,6 +253,7 @@ def device_create(request, device_type):
 
 @login_required(login_url='/admin/login/')
 def device_edit(request, device_type, device_id):
+    # Lets the user edit a device.
     args = {}
     args['device_type'] = device_type
     args['device_id'] = device_id
@@ -323,6 +305,7 @@ def device_edit(request, device_type, device_id):
 
 @login_required(login_url='/admin/login/')
 def device_delete(request, device_type, device_id):
+    # Lets the user delete a device
     args = {}
 
     if device_type == 0:
@@ -342,6 +325,7 @@ def device_delete(request, device_type, device_id):
 
 @login_required(login_url='/admin/login/')
 def plans(request):
+    # Shows all plans
     args = {}
     args['filter_name'] = request.GET.get('name', '')
     args['filter_status'] = request.GET.get('status', '')
@@ -369,9 +353,10 @@ def plans(request):
 
 @login_required(login_url='/admin/login/')
 def plans_create(request):
+    # Lets the user create and save a new plan
     args = {}
     args['form'] = PlanForm()
-
+    # If there are POST values, the plan is getting saved, and the user will be redirected to edit page.
     if request.method == 'POST':
         plan_form = PlanForm(request.POST)
         new_plan = plan_form.save()
@@ -381,18 +366,21 @@ def plans_create(request):
 
 @login_required(login_url='/admin/login/')
 def plans_activate(request, plan_id):
+    # Activate a plan (only one plan can be active)
     plan = Plan.objects.get(pk=plan_id)
     plan.activate()
     return redirect('plans')
 
 @login_required(login_url='/admin/login/')
 def plans_deactivate(request, plan_id):
+    # Deactivates a plan
     plan = Plan.objects.get(pk=plan_id)
     plan.deactivate()
     return redirect('plans')
 
 @login_required(login_url='/admin/login/')
 def plans_edit(request, plan_id):
+    # Lets the user edit an existing plan.
     args = {}
     args['id'] = plan_id
 
@@ -422,14 +410,14 @@ def plans_edit(request, plan_id):
 
 @login_required(login_url='/admin/login/')
 def plans_delete(request, plan_id):
-    
+    # Deletion of a plan
     plan = Plan.objects.get(id=plan_id)
     plan.delete()
     return redirect('plans')
 
 @login_required(login_url='/admin/login/')
 def schedule_create(request, plan_id):
-
+    # Create and save a new schedule inside a plan
     args = {}
     args['form'] = ScheduleForm(initial={'plan': plan_id})
     args['plan'] = Plan.objects.get(pk=plan_id)
@@ -443,6 +431,7 @@ def schedule_create(request, plan_id):
 
 @login_required(login_url='/admin/login/')
 def schedule_edit(request, plan_id, schedule_id):
+    # Edit and save the schedule
     args = {}
     args['id'] = plan_id
     args['plan'] = Plan.objects.get(pk=plan_id)
@@ -461,11 +450,13 @@ def schedule_edit(request, plan_id, schedule_id):
 
 @login_required(login_url='/admin/login/')
 def schedule_delete(request, plan_id, schedule_id):
+    # Delete a schedule
     Schedule.objects.filter(id=schedule_id, plan=plan_id).delete()
     return redirect('plan_edit', plan_id=plan_id)
 
 @login_required(login_url='/admin/login/')
 def statistics(request, year=int(datetime.now().strftime('%Y'))):
+    # Shows the statistics of a choosen year to the user.
     args = {}
     args['year'] = year
     args['year_before'] = year + 1
@@ -485,6 +476,7 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
 
 @login_required(login_url='/admin/login/')
 def weather(request):
+    # The weather page
     args = {}
 
     try:
@@ -507,6 +499,7 @@ def weather(request):
 
 @login_required(login_url='/admin/login/')
 def settings(request):
+    # Settings page
     def get_location_data(lat, lon, loc):
         """ Get location name data and utc offset and set it in the model """
         lat = float(lat)
@@ -634,9 +627,11 @@ def settings(request):
 
 
 def help(request):
+    # Displays the help page.
     args = {}
     return TemplateResponse(request, "help.html", args)
 
 def logout_view(request):
+    # Signs out the user and redirects to the index view
     logout(request)
     return redirect('/')
