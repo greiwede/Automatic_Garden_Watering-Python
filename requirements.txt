@@ -16,6 +16,9 @@ pytz
 # Timezonefinder including numba
 timezonefinder[numba]
 
+# Serial communication
+pyserial
+
 ### Celery requirements
 celery<5.0,>=4.4
 rabbitmq
