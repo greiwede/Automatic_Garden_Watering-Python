@@ -566,5 +566,4 @@ class WateringStatistic(models.Model):
 
     def get_water_amount(self):
         flow_capacity = self.valve_fk.get_attached_flow_capacity()
-
         return float(self.duration_seconds / 60 * flow_capacity)

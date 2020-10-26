@@ -460,7 +460,6 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
         args['water_month_' + str(i)] = 0
         for ws in ws_month:
             args['water_month_' + str(i)] += ws.get_water_amount()
-        print(args['water_month_' + str(i)])
     
     return TemplateResponse(request, "statistics.html", args)
 

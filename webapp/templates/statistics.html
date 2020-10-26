@@ -41,10 +41,10 @@
         datasets: [{
             label: 'Insgesamt Liter/Monat',
             backgroundColor: 'rgb(46, 164, 219)',
-            data: [{{ water_month_1 }}, {{ water_month_2 }}, {{ water_month_3 }}, 
-				   {{ water_month_4 }}, {{ water_month_5 }}, {{ water_month_6 }}, 
-				   {{ water_month_7 }}, {{ water_month_8 }}, {{ water_month_9 }},
-				   {{ water_month_10 }}, {{ water_month_11 }}, {{ water_month_12 }}]
+            data: [{{ water_month_1|stringformat:"d" }}, {{ water_month_2|stringformat:"d" }}, {{ water_month_3|stringformat:"d" }}, 
+				   {{ water_month_4|stringformat:"d" }}, {{ water_month_5|stringformat:"d" }}, {{ water_month_6|stringformat:"d" }}, 
+				   {{ water_month_7|stringformat:"d" }}, {{ water_month_8|stringformat:"d" }}, {{ water_month_9|stringformat:"d" }},
+				   {{ water_month_10|stringformat:"d" }}, {{ water_month_11|stringformat:"d" }}, {{ water_month_12|stringformat:"d" }}]
         }]
     },
     options: {}
