@@ -56,6 +56,6 @@
   color: white !important;
 }
 
-[data-theme="dark"] .background_weather_sunny {
+[data-theme="dark"] .background_img {
   background-image: url("../img/night.jpg");
 }

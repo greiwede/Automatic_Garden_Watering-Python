@@ -1,7 +1,7 @@
 
 
-.background_weather_sunny{
-  	background-image: url("../img/cloudy.jpg");
+.background_img{
+  	background-image: url("../img/day.jpg");
   	background-size: cover;
   	color:white;
 }
