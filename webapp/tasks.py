@@ -13,6 +13,7 @@ import time
 def deactivate_valve(valve_id, watering_time):
     time.sleep(watering_time * 60)  # warte Zeit in Sekunden
     valve = Valve.objects.get(pk=valve_id)
+    file = open("test.txt", "a")
     file.write("        Das Ventil ")
     file.write(valve.name)
     file.write(" wird nach einer Dauer von ")
@@ -73,7 +74,7 @@ def aut_irrigation():
                     file.write(" geupdatet")
                     file.write("\n")
                     file.close()
-                WeatherCounter.objects.last().reset_current_weather_counter()
+                WeatherCounter.objects.last().reset_weather_counter()
                 calculate_water_amount_valve()
             # Loop Pumpe
             pump_list = get_pump_list(automatic_plan)
@@ -198,7 +199,7 @@ def calculate_water_amount_valve():
             if current_valve_counter > get_valve_threshold(automatic_plan):
                 diff_counter_threshold = current_valve_counter - get_valve_threshold(automatic_plan)
                 # Niederschlagsmenge der vorgegebenen Zeitspanne groesser als benoetigte Wassermenge?
-                # rain Forecast* anzahl Sprinkler* standardqm pro sprinkler
+                # rain Forecast flaeche umrechnen
                 if rain_amount > get_water_amount(valve,
                                                   diff_counter_threshold):
                     # Setze Sprengzeit = 0
