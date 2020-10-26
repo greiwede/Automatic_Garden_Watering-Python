@@ -39,7 +39,6 @@
 <table class="table table-hover">
   <thead>
     <tr>
-      <th scope="col">Aktiv</th>
       <th scope="col">Name</th>
       <th scope="col">Status</th>
       <th scope="col">Nächste Ausführung</th>
@@ -50,10 +49,7 @@
 
   <tbody>
     {% for plan in plans %}
-    <tr scope="row">
-      <td>
-        <input type="checkbox" class="form-check-input" id="exampleCheck1" {% if plan.is_active_plan %}checked="checked"{% endif %} onclick="return false;">
-      </td>
+    <tr scope="row" {% if plan.is_active_plan %}class="table-success"{% endif %}>
       <td>{{ plan.name }}</td>
       <td>
         {% if plan.status == 'OK' %}

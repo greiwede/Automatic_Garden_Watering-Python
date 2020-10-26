@@ -6,8 +6,12 @@
 
       <div class="jumbotron background_weather_sunny" style="text-shadow: 0 0 5px rgba(0,0,0, 0.5);">
         
-        <h1 class="display-4">Guten Morgen, {{ first_name }}</h1>
-        <p class="lead">Dein Garten wurde heute morgen gewässert.</p>
+        <h1 class="display-4">
+          {% if greeting %}
+            {{ greeting }},
+          {% endif %} {{ first_name }}
+        </h1>
+        <p class="lead">Dein Garten wurde heute morgen bewässert.</p>
         <br>
         <p class="lead">📍 
           {% if location_town %}
@@ -73,7 +77,7 @@
             <div class="media">
               <img src="{% static 'webapp/img/icons/bucket.svg' %}" width="64" class="mr-3">
               <div class="media-body">
-                <h5 class="mt-0">127 Liter </h5>
+                <h5 class="mt-0">{{ water_amount|stringformat:"d" }} Liter </h5>
                 <p class="card-text">Wasserverbauch der letzten 7 Tage.</p>
                 <a href="{% url 'statistics' %}" class="btn btn-primary">Statistiken</a>
               </div>
