@@ -59,3 +59,8 @@
 [data-theme="dark"] .background_img {
   background-image: url("../img/night.jpg");
 }
+
+[data-theme="dark"] canvas {
+  background-color: white;
+  border-radius: 5px;
+}
