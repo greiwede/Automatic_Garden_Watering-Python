@@ -103,14 +103,15 @@ def aut_irrigation():
                             ##########
                             # Sprengzeit während der gesamten Sprengdauer erlaubt? ergänzen
                             ##########
-                            valve.activate()
-                            # rufe deaktiviere-Methode auf( ueber Celery)
-                            # diese wartet solange, bis das Ventil deaktiviert werden muss
-                            deactivate_valve.delay(valve.id, int(valve.watering_time))
-                            # reset valve.watering_time and valve.valve_counter
-                            valve.watering_time = 0
-                            valve.valve_counter = 0
-                            valve.save()
+                            if valve.curr_active
+                                valve.activate()
+                                # rufe deaktiviere-Methode auf( ueber Celery)
+                                # diese wartet solange, bis das Ventil deaktiviert werden muss
+                                deactivate_valve.delay(valve.id, int(valve.watering_time))
+                                # reset valve.watering_time and valve.valve_counter
+                                valve.watering_time = 0
+                                valve.valve_counter = 0
+                                valve.save()
 
 
 def time_allowed():
