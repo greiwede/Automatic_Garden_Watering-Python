@@ -27,11 +27,12 @@
   <a class="btn-sm btn-primary" href="/admin/auth/user/" role="button">User-Verwaltung</a>
 
   <br><hr><br>
+
+
   {% if error %}
-  <div>
-    {{ error }}
+  <div class="alert alert-danger" role="alert">
+  {{error}}
   </div>
-  <br>
   {% endif %}
   
   {% if location_name %}
