@@ -85,6 +85,38 @@
 	});
 </script>
 
+{% if watering_statistics %}
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Startzeitpunkt</th>
+      <th scope="col">Ventil</th>
+      <th scope="col">Dauer</th>
+      <th scope="col">Wassermenge</th>
+    </tr>
+  </thead>
+
+
+  <tbody>
+    {% for watering_statistic in watering_statistics %}
+      <tr scope="row">
+	  <td>{{ watering_statistic.start_time }} Uhr</td>
+	  <td>{{ watering_statistic.valve_fk }}</td>
+	  <td>{{ watering_statistic.duration_seconds }} Sekunden</td>
+	  <td>{{ watering_statistic.water_amount|floatformat:2 }} Liter</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+
+<p>Es wurde noch keinmal bewässert.</p>
+
+
+{% endif %}
+
 {% include "views/footer.html" %}
 
 {% include "views/bottom.html" %}

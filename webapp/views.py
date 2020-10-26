@@ -112,9 +112,9 @@ def dashboard(request):
         pass
 
     args['water_amount'] = 0
-    watering_statistics = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=7))
-    for watering_statistic in watering_statistics:
-        args['water_amount'] += watering_statistic.get_water_amount()
+    ws_amount = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=7))
+    for ws in ws_amount:
+        args['water_amount'] += ws.get_water_amount()
 
     return TemplateResponse(request, "dashboard.html", args)
 
@@ -478,6 +478,8 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
         args['water_month_' + str(i)] = 0
         for ws in ws_month:
             args['water_month_' + str(i)] += ws.get_water_amount()
+    
+    args['watering_statistics'] = WateringStatistic.objects.all()
     
     return TemplateResponse(request, "statistics.html", args)
 

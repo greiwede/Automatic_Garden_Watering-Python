@@ -559,7 +559,12 @@ class WateringStatistic(models.Model):
     start_time = models.DateTimeField()
     valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
     duration_seconds = models.DecimalField(max_digits=5, decimal_places=2)
+    water_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        flow_capacity = self.valve_fk.get_attached_flow_capacity()
+        self.water_amount = float(self.duration_seconds) / float(60) * float(flow_capacity)
 
     def get_water_amount(self):
-        flow_capacity = self.valve_fk.get_attached_flow_capacity()
-        return float(self.duration_seconds / 60 * flow_capacity)
+        return self.water_amount
