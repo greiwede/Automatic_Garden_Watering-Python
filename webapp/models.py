@@ -312,22 +312,22 @@ class Plan(CommonInfo):
 
     def get_related_schedules(self):
         return self.schedule_set.all()
-
-    def get_related_pumps(self):
-        return self.pump.all()
     
     def activate(self):
-        plans = Plan.objects.all()
-        for plan in plans:
-            plan.is_active_plan = False
-            plan.save()
-        self.is_active_plan = True
-        self.save()
-        transfer_plan(self)
+        if self.is_active_plan == False:
+            plans = Plan.objects.all()
+            for plan in plans:
+                plan.deactivate()
+                plan.save()
+            transfer_plan(self)
+            self.is_active_plan = True
+            self.save()
     
     def deactivate(self):
-        self.is_active_plan = False
-        self.save()
+        if self.is_active_plan == True:
+            delete_plan()
+            self.is_active_plan = False
+            self.save()
 
     def get_next_allowed_start_date_time(self):
         next_allowed_start_date_time = None
@@ -341,18 +341,6 @@ class Plan(CommonInfo):
                             next_allowed_start_date_time > schedule_next_date_time):
                         next_allowed_start_date_time = schedule_next_date_time
         return next_allowed_start_date_time
-
-    def get_pumps_to_be_activated(self):
-        schedules = self.get_related_schedules()
-        pumps_to_be_activated = None
-        is_denied_time = False
-        for schedule in schedules:
-            if schedule.is_denied_time():
-                return None
-            elif schedule.is_allowed_time():
-                pumps_to_be_activated = self.get_related_pumps()
-        return pumps_to_be_activated
-
 
 
 class PlanForm(forms.ModelForm):
