@@ -1,0 +1,12 @@
+@font-face { font-family: 'Segoe UI';
+             src: url('../font/Segoe_UI.ttf') format('truetype'); }
+@font-face { font-family: 'Sogoe UI';
+             src: url('../font/Segoe_UI_Italic.ttf') format('truetype');
+             font-style: italic; }
+@font-face { font-family: 'Sogoe UI';
+             src: url('../font/Segoe_UI_Bold.ttf') format('truetype');
+             font-weight: bold; }
+@font-face { font-family: 'Sogoe UI';
+             src: url('../font/Segoe_UI_Bold_Italic.ttf') format('truetype');
+             font-weight: bold;
+             font-style: italic; }
