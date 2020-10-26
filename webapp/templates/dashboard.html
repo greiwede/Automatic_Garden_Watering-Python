@@ -6,7 +6,11 @@
 
       <div class="jumbotron background_weather_sunny" style="text-shadow: 0 0 5px rgba(0,0,0, 0.5);">
         
-        <h1 class="display-4">Guten Morgen, {{ first_name }}</h1>
+        <h1 class="display-4">
+          {% if greeting %}
+            {{ greeting }},
+          {% endif %} {{ first_name }}
+        </h1>
         <p class="lead">Dein Garten wurde heute morgen gewässert.</p>
         <br>
         <p class="lead">📍 
