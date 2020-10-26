@@ -22,39 +22,66 @@ def set_valve(valve_id, action):
 
 
 def transfer_plan(plan):
+    # Get necessary objects
     pumps = []
     valves = plan.valve.all()
     for valve in valves:
         pumps.append(valve.pump_fk)
     schedules = plan.get_related_schedules()
 
-    pumpen_str = "Pumpen: "
-    for pump in pumps:
-        pumpen_str += str(pump.contr_id) + ","
+    # Create string
+    header_str = "NEWPLAN"
 
-    valves_str = "Ventile: "
+    i = 0
+    pumpen_str = "PUMPS:"
+    for pump in pumps:
+        if i > 0:
+            pumpen_str += ","
+        pumpen_str += str(pump.contr_id)
+        i += 1
+
+    i = 0
+    valves_str = "VALVES:"
     for valve in valves:
-        valves_str += str(valve.contr_id) + ","
+        if i > 0:
+            valves_str += ","
+        valves_str += str(valve.contr_id)
+        i += 1
 
     schedules_str = ""
     for schedule in schedules:
-        if schedule.is_allow():
+        if schedule.is_allow:
             schedule_temp = "ALLOW;"
         else:
             schedule_temp = "DENY;"
 
+        i = 0
         for weekday in schedule.get_weekdays():
-            schedule_temp += str(weekday) + ","
+            if i > 0:
+                schedule_temp += ","
+            schedule_temp += str(weekday)
+            i += 1
 
         schedule_temp += ";"
-        schedule_temp += str(schedule.start_time) + ";"
-        schedule_temp += str(schedule.end_time)
+        schedule_temp += str(schedule.time_start) + ";"
+        schedule_temp += str(schedule.time_stop)
 
         schedules_str += schedule_temp + "\n"
 
-    plan_str = pumpen_str + "\n" + valves_str + "\n" + schedules_str
+    message_str = header_str + "\n" + pumpen_str + "\n" + valves_str + "\n" + schedules_str
 
-    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', plan_str])
+    print("Message to controller:\n" + message_str)
+
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
+
+
+def delete_plan():
+    header_str = "DELETEPLAN"
+    message_str = header_str
+    print("Message to controller:\n" + message_str)
+
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', message_str])
+
 
 
 def get_humidity(sensor_id):
