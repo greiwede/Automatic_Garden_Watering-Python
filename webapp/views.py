@@ -359,7 +359,6 @@ def plans_create(request):
     if request.method == 'POST':
         plan_form = PlanForm(request.POST)
         new_plan = plan_form.save()
-
         return redirect('plan_edit', new_plan.id)
 
     return TemplateResponse(request, "plans_create.html", args)

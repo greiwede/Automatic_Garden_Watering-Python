@@ -27,7 +27,34 @@ def transfer_plan(plan):
     for valve in valves:
         pumps.append(valve.pump_fk)
     schedules = plan.get_related_schedules()
-    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', pumps, valves, schedules])
+
+    pumpen_str = "Pumpen: "
+    for pump in pumps:
+        pumpen_str += pump.contr_id + ","
+
+    valves_str = "Ventile: "
+    for valve in valves:
+        valves_str += valve.contr_id + ","
+
+    schedules_str = ""
+    for schedule in schedules:
+        if schedule.is_allow():
+            schedule_temp = "ALLOW;"
+        else:
+            schedule_temp = "DENY;"
+
+        for weekday in schedule.get_weekdays():
+            schedule_temp += weekday + ","
+
+        schedule_temp += ";"
+        schedule_temp += schedule.start_time + ";"
+        schedule_temp += schedule.end_time
+
+        schedules_str += schedule_temp + "\n"
+
+    plan_str = pumpen_str + "\n" + valves_str + "\n" + schedules_str
+
+    subprocess.call(['python2.7', '/home/pi/Dev/python-sprinkler/webapp/transfer_plan.py', plan_str])
 
 
 def get_humidity(sensor_id):
