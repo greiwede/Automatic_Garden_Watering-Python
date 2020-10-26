@@ -6,59 +6,43 @@ from celery import shared_task
 
 from .models import *
 from .interface import *
-from django.db.models import Sum, Max
-import time  # test
-
-
-# test
-@shared_task
-def add(a, b):
-    time.sleep(5)
-    return a + b
-
-
-# test
-@shared_task
-def print_test():
-    file = open("test.txt", "a")
-    file.write("test")
-    file.close()
-    print('test')
-
+from django.db.models import Sum
+import time
 
 @shared_task
 def deactivate_valve(valve_id, watering_time):
-    time.sleep(watering_time * 1)  # warte Zeit in Sekunden
+    time.sleep(watering_time * 60)  # warte Zeit in Sekunden
     valve = Valve.objects.get(pk=valve_id)
-    file = open("test.txt", "a")
+    file.write("        Das Ventil ")
     file.write(valve.name)
-    file.write(str(watering_time))
-    file.write("  Schalte das Ventil wieder aus \n")
-    file.close()
+    file.write(" wird nach einer Dauer von ")
+    file.write(str(watering_time * 60))
+    file.write(" Minuten ausgeschaltet")
+    file.write("\n")
     valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
 
 
 @shared_task
 def aut_irrigation():
     file = open("test.txt", "a")
-    file.write("test \n")
+    file.write("Die Funktion der automatisierten Bewaesserung wird aufgerufen \n")
     file.close()
     automatic_plan = get_activ_automatic_plan()
     if automatic_plan is not None:
         file = open("test.txt", "a")
-        file.write("auto \n")
+        file.write(" Es ist ein automatisierter Plan aktiv \n")
         file.close()
         # ist Sprengzeit erlaubt
         if time_allowed():  # Abfrage an Model
             file = open("test.txt", "a")
-            file.write("ta \n")
+            file.write("  Der aktuelle Zeitraum ist erlaubt  \n")
             file.close()
             # mit Bodensensor
-            if is_sensor_activ():  # Abfrage an MC
+            if is_sensor_activ(automatic_plan):
                 file = open("test.txt", "a")
-                file.write("sensor")
+                file.write("   Es handelt sich um eine automatisierte Bewaesserung mit Sensor \n")
                 file.close()
-                # alle Sensor-IDs aus DB abrufen
+                # alle Sensoren aus Model abrufen
                 sensor_list = get_sensor_list()
                 # Schleife - alle Sensoren durchgehen
                 for sensor in sensor_list:
@@ -74,56 +58,57 @@ def aut_irrigation():
                         set_watering_time_valve(valve, valve_time)
             else:
                 file = open("test.txt", "a")
-                file.write("valve \n")
+                file.write("   Es handelt sich um eine automatisierte Bewaesserung mit dem Wetterzaehler \n")
                 file.close()
                 valve_list = get_valve_list(automatic_plan)
                 # Schleife - alle Ventile durchgehen
                 for valve in valve_list:
                     # Addiere Wetterzaehler zu jeden Ventilzaehler
-                    file = open("test.txt", "a")
-                    file.write(valve.name)
-                    file.write("  \n")
-                    file.close()
                     add_weathercounter_to_valve_counter(valve)
-                # weather_counter.reset_current_weather_counter(maria_db_connection) #zum testen auskommentiert
+                    file = open("test.txt", "a")
+                    file.write("    Bei dem Ventil mit den Namen ")
+                    file.write(valve.name)
+                    file.write(" wird der Ventilzaehler auf:")
+                    file.write(str(valve.valve_counter))
+                    file.write(" geupdatet")
+                    file.write("\n")
+                    file.close()
+                WeatherCounter.objects.last().reset_current_weather_counter()
                 calculate_water_amount_valve()
-            # Wassermenge > 0 bei mindestens einem Ventil?
-            # valve_max = Valve.objetcs.annotate(Max('watering_time'))  # speicher Ventil mit hochster Zeit
-            file = open("test.txt", "a")
-            file.write("start Loop Check \n")
-            file.close()
+            # Loop Pumpe
             pump_list = get_pump_list(automatic_plan)
             for pump in pump_list:
+                # Liste aller Ventile einer Pumpe nach (watering_time absteigend sortiert)
                 valve_list_sort = get_valve_pump_list(automatic_plan, pump).order_by('-watering_time')
+                # Wassermenge > 0 bei mindestens einem Ventil?
                 if valve_list_sort.first().watering_time > 0:
                     file = open("test.txt", "a")
-                    file.write("Ventil muss angeschaltet werden \n")
+                    file.write("      Es existiert ein Ventil mit einer Sprengzeit groesser als \n")
                     file.close()
-                    # Pumpe bereits eingeschaltet?
-                    if pump_deactivated(pump):
-                        # Pumpe einschalten
-                        set_pump(str(pump.pk), "ON")
-                    # Pumpe ausgelastet oder keine Wassermenge > 0?
-                    pump_workload_temp = pump_workload(pump)
+                    # Loop Ventile der jeweiligen Pumpe
                     for valve in valve_list_sort:
-                        if pump_workload_temp + get_valve_flow_capacity(
+                        # Pumpe ausgelastet oder keine Wassermenge > 0?
+                        if get_pump_workload(pump) + get_valve_flow_capacity(
                                 valve) <= get_pump_flow_capacity(pump) and valve.watering_time > 0:
                             file = open("test.txt", "a")
-                            file.write("name und Zeit und Pumpe")
-                            file.write(str(valve.watering_time))
+                            file.write("       Das Ventil ")
                             file.write(valve.name)
-                            file.write(pump.name)
+                            file.write(" wird mit einer Dauer von ")
+                            file.write(str(valve.watering_time*60))
+                            file.write(" Minuten angeschaltet")
                             file.write("\n")
                             file.close()
                             # starte bestimmtes Ventil
-                            set_valve(str(valve.pk), "ON")
-                            #start_valve(valve.pk, valve.watering_time)
-                            deactivate_valve.delay(valve.pk, int(valve.watering_time))
-                            # Setze Ventil-Zaehler zurueck
-                            pump_workload_temp = pump_workload_temp + get_valve_flow_capacity(valve)
+                            ##########
+                            # Sprengzeit während der gesamten Sprengdauer erlaubt? ergänzen
+                            ##########
+                            valve.activate()
+                            # rufe deaktiviere-Methode auf( ueber Celery)
+                            # diese wartet solange, bis das Ventil deaktiviert werden muss
+                            deactivate_valve.delay(valve.id, int(valve.watering_time))
+                            # reset valve.watering_time and valve.valve_counter
                             valve.watering_time = 0
                             valve.valve_counter = 0
-                            valve.curr_active = True
                             valve.save()
 
 
@@ -163,12 +148,11 @@ def add_weathercounter_to_valve_counter(valve):
         valve.valve_counter = valve.valve_counter + WeatherCounter.objects.last().weather_counter
         valve.save()
     except:
-        pass
+        WeatherCounter.objects.create(weather_counter=0)
 
 
-# Platzhalter fuer Pruefung, ob Sensor aktiv
-def is_sensor_activ():
-    return False
+def is_sensor_activ(plan):
+    return plan.automation_sensor
 
 
 # MUSS  OCH GEAENDERT WERDEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -179,7 +163,7 @@ def calculate_water_amount_sensor(sensor):
     automatic_plan = get_activ_automatic_plan()
     if automatic_plan is not None:
         if automatic_plan.automation_rain:
-            if is_rain_activ():
+            if automatic_plan.automation_rain:
                 rain_amount = get_rain_forecast()  # Totzeit des Sensors erstmal nicht beruecksichtigen
             if get_sensor_humidity(sensor) < get_sensor_threshold(automatic_plan):
                 # Wettereinfluesse die noch nicht vom Sensor erkannt wurden beruecksichtigen (Totzeit) und Forecast
@@ -194,7 +178,7 @@ def calculate_water_amount_sensor(sensor):
 def calc_needed_water_amount(sensor):
     sensor_counter = get_sensor_humidity(sensor)
     amount_calc_water = 100 - sensor_counter
-    amount_water_new = amount_calc_water  # * Wert pro Prozent
+    amount_water_new = amount_calc_water * 0.2
     return amount_water_new
 
 
@@ -214,12 +198,14 @@ def calculate_water_amount_valve():
             if current_valve_counter > get_valve_threshold(automatic_plan):
                 diff_counter_threshold = current_valve_counter - get_valve_threshold(automatic_plan)
                 # Niederschlagsmenge der vorgegebenen Zeitspanne groesser als benoetigte Wassermenge?
+                # rain Forecast* anzahl Sprinkler* standardqm pro sprinkler
                 if rain_amount > get_water_amount(valve,
-                                                  diff_counter_threshold):  # in qm Umrechnen damit vergleich sinnvoll????????????????????????????
+                                                  diff_counter_threshold):
                     # Setze Sprengzeit = 0
                     valve_time = 0
                 else:
                     water_amount = get_water_amount(valve, diff_counter_threshold) - rain_amount
+                    # Try, da falls kein Sprinkler zum Ventil zugeordnet ist ein Fehler in der Berechnung auftritt
                     try:
                         valve_time = water_amount / get_valve_flow_capacity(valve)
                     except:
@@ -227,9 +213,11 @@ def calculate_water_amount_valve():
             else:
                 valve_time = 0
             file = open("test.txt", "a")
-            file.write("Sprengzeit wird bei Ventil... auf ... gesetzt")
-            file.write(str(valve_time))
+            file.write("     Sprengzeit wird bei Ventil ")
             file.write(valve.name)
+            file.write(" auf den Wert ")
+            file.write(str(valve_time))
+            file.write(" gesetzt ")
             file.write("\n")
             file.close()
             valve.watering_time = valve_time
@@ -259,45 +247,21 @@ def get_valve_counter(valve):
     return valve.valve_counter
 
 
-# Abfrage an MC
-def is_rain_activ():
-    return True
-
-
 # wo genau wird das gespeichert?
 def get_rain_forecast():
     return 0
 
 
-# Abfrage an MC
 def get_sensor_humidity(sensor):
     return 10
 
 
-def pump_deactivated(pump):
+def is_pump_deactivated(pump):
     return pump.curr_active
 
 
-def start_pump(pump):  # mit Fabian absprechen
-    pass
-
-
-def start_valve(valve, time):
-    pass
-
-
-def stop_valve(valve):
-    pass
-
-
-def pump_workload(pump):
-    valves = Valve.objects.filter(pump_fk=pump, curr_active=True)
-    result = 0
-    for valve in valves:
-        sprinklers = Sprinkler.objects.filter(valve_fk=valve)
-        for sprinkler in sprinklers:
-            result = result + sprinkler.flow_capacity
-    return result
+def get_pump_workload(pump):
+    return pump.current_workload
 
 
 def get_pump_flow_capacity(pump):
