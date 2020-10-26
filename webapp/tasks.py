@@ -36,7 +36,6 @@ def deactivate_valve(valve_id, watering_time):
     file.write("  Schalte das Ventil wieder aus \n")
     file.close()
     valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
-    set_valve(valve_id, "OFF") # Sende an Microcontroller
 
 
 @shared_task

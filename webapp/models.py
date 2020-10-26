@@ -53,13 +53,13 @@ class Pump(Device):
         if self.curr_active == False:
             self.curr_active = True
             self.save()
-            set_pump(str(self.id), "ON")
+            set_pump(str(self.contr_id), "ON")
 
     def deactivate(self):
         if self.curr_active == True:
             self.curr_active = False
             self.save()
-            set_pump(str(self.id), "OFF")
+            set_pump(str(self.contr_id), "OFF")
             attached_valves = self.get_attached_valves()
             for valve in attached_valves:
                 valve.deactivate()
@@ -150,6 +150,7 @@ class Valve(Device):
                 sprinkler.activate()
             self.activate_date_time = timezone.now()
             self.save()
+            set_valve(str(self.contr_id), "ON")
     
     def deactivate(self):
         if self.curr_active == True:
@@ -162,6 +163,8 @@ class Valve(Device):
             WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
             self.activate_date_time = None
             self.save()
+            set_valve(str(self.contr_id), "OFF")
+
     def get_attached_sprinklers(self):
         return Sprinkler.objects.filter(valve_fk__exact=self)
 
@@ -320,6 +323,7 @@ class Plan(CommonInfo):
             plan.save()
         self.is_active_plan = True
         self.save()
+        transfer_plan(self)
     
     def deactivate(self):
         self.is_active_plan = False
