@@ -17,6 +17,8 @@
 
     <link rel="stylesheet" type="text/css" href="{% static 'webapp/css/style.css' %}">
 
+    <link rel="stylesheet" href="{% static 'webapp/css/dark-mode.css' %}">
+
     <script src="{% static 'webapp/js/chart.js' %}"></script>
 
     <title>Sprinkler</title>
@@ -46,8 +48,33 @@
           <a class="nav-link" href="{% url 'settings' %}">Einstellungen</a>
           {% endif %}
           <a class="nav-link" href="{% url 'help' %}">Hilfe</a>
+
+          
+
         </div>
       </div>
+      
+      <span class="navbar-text" style="margin-right:20px">
+        <div class="custom-control custom-switch">
+            <input type="checkbox" onclick="toggleLabel()" class="custom-control-input" id="darkSwitch">
+            <label id="darkSwitchLabel" class="custom-control-label" for="darkSwitch"></label>
+          </div>
+          <script src="{% static 'webapp/js/dark-mode-switch.min.js' %}"></script>
+          <script type="text/javascript">
+            function toggleLabel(){
+              var checkBox = document.getElementById("darkSwitch");
+              if (checkBox.checked == true){
+                 document.getElementById('darkSwitchLabel').innerHTML = '🌙';
+              } else {
+                document.getElementById('darkSwitchLabel').innerHTML = '🌞';
+              }
+            }
+
+            window.onload = function() {
+              toggleLabel();
+            };
+          </script>
+      </span>
       <span class="navbar-text">
       {% if user.is_authenticated %}
       Hi, {{ user.first_name }}!  <a href="/admin/logout/?next=/">Logout</a>    
