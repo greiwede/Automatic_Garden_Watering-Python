@@ -12,6 +12,7 @@ import sys
 sys.path.append("..")
 
 from .models import *
+from .interface import *
 from sprinkler.cron import read_weather
 
 import json
@@ -174,11 +175,13 @@ def device_start(request, device_type, device_id):
     elif device_type == 2:
         pump = Pump.objects.get(id=device_id)
         pump.activate()
+        set_pump(str(device_id), "ON")
         print('Pumpe mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Pumpe')
     elif device_type == 3:
         valve = Valve.objects.get(id=device_id)
         valve.activate()
+        set_valve(str(device_id), "ON")
         print('Ventil mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Ventil')
 
@@ -201,11 +204,13 @@ def device_stop(request, device_type, device_id):
     elif device_type == 2:
         pump = Pump.objects.get(id=device_id)
         pump.deactivate()
+        set_pump(str(device_id), "OFF")
         print('Pumpe mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Pumpe')
     elif device_type == 3:
         valve = Valve.objects.get(id=device_id)
         valve.deactivate()
+        set_valve(str(device_id), "OFF")
         print('Ventil mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Ventil')
 
