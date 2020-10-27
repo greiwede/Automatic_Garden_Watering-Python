@@ -1,5 +1,14 @@
+#===================================================#
+#                   set_valve.py                    #
+#===================================================#
+#  Dieses Skript sendet den Befehl zum öffnen oder  #
+#  schließen eines Ventils an den Mikrocontroller   #
+#===================================================#
+# Entwickler : Fabian Völker                        #
+#===================================================#
+
+
 import serial
-import time
 import sys
 
 uart = serial.Serial('/dev/ttyS0', 9600) # uart initalisieren, baudrate=9600
@@ -9,11 +18,12 @@ valve_id_sys = (str(sys.argv[1]))
 action_sys = (str(sys.argv[2]))
 
 
+# Der set_valve Befehl schickt dem Mikrocontroller den Befehl das jeweilige
+# Ventil entweder zu öffnen oder zu schließen
+
 def set_valve(valve_id, action):
     uart.write(b'\n' + b'valve_id:' + valve_id)
-    # print(b'Adressierung von Pumpe: ' + deviceID)
     uart.write(b'\t' + b'STATUS-SET:' + action)
-    # print(b'STATUS-SET:' + boolean)
     pass
 
 set_valve(valve_id_sys, action_sys)
