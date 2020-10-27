@@ -254,9 +254,11 @@ class WeatherCounter(models.Model):
             if not automatic_plan.automation_sensor:
                 counter = self.weather_counter
                 if automatic_plan.automation_rain:
-                    counter = counter + self.get_rain()
+                    # * 1/4 , da es vier mal pro Stunde aufgerufen wird (beim Update des Wetters)
+                    counter = counter + self.get_rain() * (1/4)
                 if automatic_plan.automation_temperature:
-                    counter = counter + self.get_temperature()
+                    # * 1/4 , da es vier mal pro Stunde aufgerufen wird (beim Update des Wetters)
+                    counter = counter + self.get_temperature() * (1/4)
                 self.weather_counter = counter
                 self.save()
 
@@ -477,7 +479,7 @@ class Schedule(models.Model):
         return weekdays
 
     def is_allowed_time(self):
-        if is_allow:
+        if self.is_allow:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
             if next_start_date_time != None:
@@ -493,7 +495,7 @@ class Schedule(models.Model):
             return False
 
     def is_denied_time(self):
-        if is_deny:
+        if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
             if next_start_date_time != None:
