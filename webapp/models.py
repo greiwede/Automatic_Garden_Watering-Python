@@ -399,13 +399,19 @@ class Plan(CommonInfo):
         schedules = self.get_related_schedules()
         if schedules.first() is None:
             return True
+        allow_time = False
         for schedule in schedules:
-            allow_time = False
             if schedule.is_denied_time():
                 return False
             if schedule.is_allowed_time():
                 allow_time = True
         return allow_time
+
+    def is_automated_plan(self):
+        if self.automation_rain or self.automation_sensor or self.automation_temperature:
+            return True
+        else:
+            return False
 
 
 class PlanForm(forms.ModelForm):
@@ -504,6 +510,15 @@ class Schedule(models.Model):
         return weekdays
 
     def is_allowed_time(self):
+        if self.plan.is_automated_plan():
+            self.is_allowed_time_automated()
+        else:
+            self.is_allowed_time_manual()
+
+    def is_allowed_time_automated(self):
+        return not self.is_denied_time_automated()
+    
+    def is_allowed_time_manual(self):
         if self.is_allow:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
@@ -520,6 +535,28 @@ class Schedule(models.Model):
             return False
 
     def is_denied_time(self):
+        if self.plan.is_automated_plan():
+            self.is_denied_time_automated()
+        else:
+            self.is_denied_time_manual()
+
+    def is_denied_time_automated(self):
+        if self.is_deny:
+            next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            if next_start_date_time != None:
+                is_same_day = next_start_date_time <= next_end_date_time
+            else:
+                return False
+
+            if is_same_day:
+                return False
+            else:
+                return True
+        else:
+            return False
+
+    def is_denied_time_manual(self):
         if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
@@ -540,13 +577,18 @@ class ScheduleForm(forms.ModelForm):
     """Model form for the Schedule model"""
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
-        i = 0;
+        i = 0
         for field in iter(self.fields):
             functionName = 'radioBehave'+str(i)+'()'
             if Schedule._meta.get_field(field).get_internal_type() == 'BooleanField':
                 self.fields[field].widget.attrs.update({    
                     'class': 'form-check',
                     'onclick': functionName,
+                })
+            elif Schedule._meta.get_field(field).get_internal_type() == 'TimeField':
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-control',
+                    'type': 'time'
                 })
             else:
                 self.fields[field].widget.attrs.update({    
