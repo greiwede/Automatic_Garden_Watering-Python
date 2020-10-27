@@ -124,17 +124,7 @@ class Sensor(Device):
     """This represents a humidity sensor which is connected to one or more valves."""
     curr_active = models.BooleanField(default=False)
     device_type = 'Sensor'
-    moisture = models.DecimalField(max_length=5, max_digits=2, default=0)
-
-    def activate(self):
-        if self.curr_active == False:
-            self.curr_active = True
-            self.save()
-
-    def deactivate(self):
-        if self.curr_active == True:
-            self.curr_active = False
-            self.save()
+    moisture = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
 
 class SensorForm(forms.ModelForm):
@@ -237,16 +227,6 @@ class Sprinkler(Device):
 
     # Sprinkler weiterhin gespeichert, wenn ein Ventil geloescht wird, damit es bei Bedarf einen anderen Ventil zugeordnet werden kann
     valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
-
-    def activate(self):
-        if self.curr_active == False:
-            self.curr_active = True
-            self.save()
-
-    def deactivate(self):
-        if self.curr_active == True:
-            self.curr_active = False
-            self.save()
 
 
 # Form for Sprinkler

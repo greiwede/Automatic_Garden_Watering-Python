@@ -157,17 +157,7 @@ def device_start(request, device_type, device_id):
     # Starts a device (Valves & Pumps only). Login Required.
     args = {}
     # Switch statement to identify the device type (edit key)
-    if device_type == 0:
-        sprinkler = Sprinkler.objects.get(id=device_id)
-        sprinkler.activate() # Activation method
-        print('Sprinkler mit der ID ', device_id, ' wurde gestartet.')
-        return redirect('/devices/?device=Sprinkler')
-    elif device_type == 1:
-        sensor = Sensor.objects.get(id=device_id)
-        sensor.activate() # Activation method
-        print('Sensor mit der ID ', device_id, ' wurde gestartet.')
-        return redirect('/devices/?device=Sensor')
-    elif device_type == 2:
+    if device_type == 2:
         pump = Pump.objects.get(id=device_id)
         pump.activate() # Activation method
         print('Pumpe mit der ID ', device_id, ' wurde gestartet.')
@@ -186,17 +176,7 @@ def device_stop(request, device_type, device_id):
     # Stops a device (Valves & Pumps only).
     args = {}
     # Switch statement to identify the device type (edit key)
-    if device_type == 0:
-        sprinkler = Sprinkler.objects.get(id=device_id)
-        sprinkler.deactivate()
-        print('Sprinkler mit der ID ', device_id, ' wurde gestoppt.')
-        return redirect('/devices/?device=Sprinkler')
-    elif device_type == 1:
-        sensor = Sensor.objects.get(id=device_id)
-        sensor.deactivate()
-        print('Sensor mit der ID ', device_id, ' wurde gestoppt.')
-        return redirect('/devices/?device=Sensor')
-    elif device_type == 2:
+    if device_type == 2:
         pump = Pump.objects.get(id=device_id)
         pump.deactivate()
         print('Pumpe mit der ID ', device_id, ' wurde gestoppt.')
