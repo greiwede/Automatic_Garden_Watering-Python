@@ -323,7 +323,7 @@ def read_weather():
     try:
         user_settings = UserSettings.objects.latest('id')
         owm_api_key = user_settings.owm_api_key
-        loc = Location.objects.all()[:1][0]
+        loc = Location.objects.latest()
     except:
         print("Standortdaten oder Koordinaten unzureichend gepflegt")
         return -1
@@ -345,17 +345,17 @@ def read_weather():
         rain = 0
 
     # -- Get correct reference_time
-    reference_time = weather.reference_time('iso') + "00"
-    reference_time_obj = datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
+    reference_time = weather.reference_time('iso')# + "00" # Needed under Windows OS
+    reference_time_obj = datetime.datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
     reference_time_obj = reference_time_obj + timedelta(hours=int(loc.utc_offset))
 
     # # -- Get correct reception_time
-    reception_time = observer.reception_time('iso') + "00"
-    reception_time_obj = datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
+    reception_time = observer.reception_time('iso')# + "00" # Needed under Windows OS
+    reception_time_obj = datetime.datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
     reception_time_obj = reception_time_obj + timedelta(hours=int(loc.utc_offset))
 
-    reference_time_obj = datetime.now()
-    reception_time_obj = datetime.now()
+    reference_time_obj = datetime.datetime.now()
+    reception_time_obj = datetime.datetime.now()
 
     owm_id = weather.weather_code
     weather_status_fk = WeatherStatus.objects.get(owm_id__exact=owm_id)
