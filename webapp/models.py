@@ -415,7 +415,8 @@ class PlanForm(forms.ModelForm):
         for field in iter(self.fields):
             if Plan._meta.get_field(field).get_internal_type() == 'BooleanField':
                 self.fields[field].widget.attrs.update({    
-                    'class': 'form-check'
+                    'class': 'form-check',
+                    'onclick': 'myFunction()'
                 })
             else:
                 self.fields[field].widget.attrs.update({    
