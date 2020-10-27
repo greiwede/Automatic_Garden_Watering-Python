@@ -16,21 +16,30 @@ How to setup a working Sprinkler application.
 #### Option 2: manual setup
 1. Install Python3.*, RabbitMQ and libATLAS for Celery
 <pre>pi@raspberry:~ $ <b>sudo apt-get install python3 python3-venv python2.7 curl git rabbitmq-server libatlas-base-dev</b></pre>
-2. Create Virtual Environment
+2. Enable serial communication of the Raspberry Pi
+2.1. Enter the following command
+<pre>pi@raspberry:~ $ <b>sudo raspi-config</b></pre>
+2.2. Use the arrow keys to get to option 5 Interfacing Options and hit Enter
+2.3. In the next menu navigate to P6 Serial and hit Enter again
+2.4. Accept the next question by hitting Enter when Yes is selected
+2.5. Confirm the dialog by hitting Enter on the OK button and navigate to the Finish button on the next menu and hit Enter.
+2.6. Reboot the Raspberry Pi
+<pre>pi@raspberry:~ $ <b>sudo reboot</b></pre>
+3. Create Virtual Environment
 <pre>pi@raspberry:~ $ <b>python3 -m venv sprinklerenv</b></pre>
-3. Change Directory
+4. Change Directory
 <pre>pi@raspberry:~ $ <b>cd sprinklerenv</b></pre>
-4. Activate Virtual Environment
+5. Activate Virtual Environment
 <pre>pi@raspberry:~ $ <b>source bin/activate</b></pre>
-5. Clone Repository
+6. Clone Repository
 <pre>pi@raspberry:~ $ <b>git clone https://github.com/lennartvonwerder/python-sprinkler.git</b></pre>
-6. Change Directory
+7. Change Directory
 <pre>pi@raspberry:~ $ <b>cd python-sprinkler</b></pre>
-7. Install all required Python modules
+8. Install all required Python modules
 <pre>pi@raspberry:~ $ <b>pip install -r requirements.txt</b></pre>
-8. Start Server
+9. Start Server
 <pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
-9. Enjoy!
+10. Enjoy!
 
 ### Windows
 
