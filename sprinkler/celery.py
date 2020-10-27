@@ -1,3 +1,14 @@
+"""
+#===================================================#
+#                  celery.py                        #
+#===================================================#
+#  Diese Datei entählt die grundlegenden            #
+#  Einstellungen fuer Celery und die Terminierung   #
+#  der regelmäßig ausgefuehrten Aufgaben            #
+#===================================================#
+# Entwickler : Dennis Greiwe                        #
+#===================================================#
+"""
 import os
 
 from celery import Celery

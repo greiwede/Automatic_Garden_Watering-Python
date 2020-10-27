@@ -1,3 +1,15 @@
+"""
+#===================================================#
+#                   tasks.py                        #
+#===================================================#
+#  Diese Datei beeihaltet die automatisierte        #
+#  Bewaesserung, sowie das Einlesen der Wetterdaten #
+#===================================================#
+# Entwickler : Timon Wilming und Dennis Greiwe      #
+#(& Niclas Dagge & Malte Seelhoefer[siehe Methoden])#
+#===================================================#
+"""
+
 from __future__ import absolute_import, unicode_literals
 from celery import shared_task
 import sys
@@ -7,20 +19,7 @@ from django.db.models import Sum
 import time
 from pyowm.owm import OWM
 from datetime import datetime, timedelta
-
-
-@shared_task
-def deactivate_valve(valve_id, watering_time):
-    time.sleep(watering_time * 60)  # warte Zeit in Sekunden
-    valve = Valve.objects.get(pk=valve_id)
-    file = open("auto_irrigation_log.txt", "a")
-    file.write("        Das Ventil ")
-    file.write(valve.name)
-    file.write(" wird nach einer Dauer von ")
-    file.write(str(watering_time))
-    file.write(" Minuten ausgeschaltet")
-    file.write("\n")
-    valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
+from sprinkler.controller.interface import *
 
 
 @shared_task
@@ -35,7 +34,7 @@ def aut_irrigation():
         file.write(" Es ist ein automatisierter Plan aktiv \n")
         file.close()
         # Zeitraum zum Sprengen erlaubt?
-        if time_allowed():  # Abfrage an Model
+        if automatic_plan.is_allow_time():
             file = open("auto_irrigation_log.txt", "a")
             file.write("  Der aktuelle Zeitraum ist erlaubt  \n")
             file.close()
@@ -101,10 +100,7 @@ def aut_irrigation():
                             file.write(" Minuten angeschaltet")
                             file.write("\n")
                             file.close()
-                            # Schalte Ventil ein
-                            ##########
-                            # Sprengzeit während der gesamten Sprengdauer erlaubt? ergänzen
-                            if(time_allowed_timedelta(automatic_plan, valve.watering_time)):
+                            if time_allowed_timedelta(automatic_plan, valve.watering_time):
                                 if valve.curr_active:
                                     valve.activate()
                                     # rufe deaktiviere-Methode auf( ueber Celery)
@@ -116,87 +112,18 @@ def aut_irrigation():
                                     valve.save()
 
 
-def time_allowed():
-    return True
-
-
-def time_allowed_timedelta(plan, time):
-    next_denied_time = plan.get_next_denied_start_date_time
-    if(next_denied_time is not None):
-        time_valve_deactivate = datetime.now() + timedelta(minutes=time)
-        if (next_denied_time > time_valve_deactivate):
-            return True
-        else:
-            return False
-    else: # keine Verbotszeiten -> immer True
-        return True
-
-
-
-def get_sensor_list():
-    return Sensor.objects.all()
-
-
-def get_valve_list(automatic_plan):
-    return automatic_plan.valve.filter(
-        sprinkler__isnull=False).distinct()  # gebe alle Ventile des automatisierten Plans mit mind. 1 Sprenkler zurueck
-
-
-def get_valve_pump_list(automatic_plan, pump):
-    return get_valve_list(automatic_plan).filter(pump_fk=pump)
-
-
-def get_pump_list(automatic_plan):
-    valves = get_valve_list(automatic_plan)
-    return Pump.objects.filter(valve__in=valves).distinct()
-
-
-def get_valve_sensor_list(sensor):
-    return Valve.objects.filter(sensor_fk=sensor)
-
-
-def set_watering_time_valve(valve, watering_time):
-    valve.watering_time = watering_time
-    valve.save()
-
-
-def add_weathercounter_to_valve_counter(valve):
-    try:
-        valve.valve_counter = valve.valve_counter + WeatherCounter.objects.last().weather_counter
-        valve.save()
-    except:
-        WeatherCounter.objects.create(weather_counter=0)
-
-
-def is_sensor_activ(plan):
-    return plan.automation_sensor
-
-
-# MUSS  OCH GEAENDERT WERDEN!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# Wassermenge berechnet fuer mit Sensor
-def calculate_water_amount_sensor(sensor):
-    wateramount = 0
-    rain_amount = 0
-    automatic_plan = get_activ_automatic_plan()
-    if automatic_plan is not None:
-        if automatic_plan.automation_rain:
-            if automatic_plan.automation_rain:
-                rain_amount = get_rain_forecast()  # Totzeit des Sensors erstmal nicht beruecksichtigen
-            if get_sensor_humidity(sensor) < get_sensor_threshold(automatic_plan):
-                # Wettereinfluesse die noch nicht vom Sensor erkannt wurden beruecksichtigen (Totzeit) und Forecast
-                wateramount = calc_needed_water_amount(sensor) - rain_amount
-                if wateramount < 0:
-                    wateramount = 0
-            else:
-                wateramount = 0
-            return 10  # zum testen
-
-
-def calc_needed_water_amount(sensor):
-    sensor_counter = get_sensor_humidity(sensor)
-    amount_calc_water = 100 - sensor_counter
-    amount_water_new = amount_calc_water * 0.2
-    return amount_water_new
+@shared_task
+def deactivate_valve(valve_id, watering_time):
+    time.sleep(watering_time * 60)  # warte Zeit in Sekunden
+    valve = Valve.objects.get(pk=valve_id)
+    file = open("auto_irrigation_log.txt", "a")
+    file.write("        Das Ventil ")
+    file.write(valve.name)
+    file.write(" wird nach einer Dauer von ")
+    file.write(str(watering_time))
+    file.write(" Minuten ausgeschaltet")
+    file.write("\n")
+    valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
 
 
 def calculate_water_amount_valve():
@@ -270,6 +197,80 @@ def get_valve_area(valve):
         return 1
 
 
+# Wassermenge berechnet fuer mit Sensor
+def calculate_water_amount_sensor(sensor):
+    rain_amount = 0
+    automatic_plan = get_activ_automatic_plan()
+    if automatic_plan is not None:
+        if automatic_plan.automation_rain:
+            if automatic_plan.automation_rain:
+                rain_amount = get_rain_forecast()  # Totzeit des Sensors erstmal nicht beruecksichtigen
+            if get_sensor_humidity(sensor) < get_sensor_threshold(automatic_plan):
+                wateramount = calc_needed_water_amount(sensor) - rain_amount
+                if wateramount < 0:
+                    wateramount = 0
+            else:
+                wateramount = 0
+            return wateramount
+
+
+def calc_needed_water_amount(sensor):
+    sensor_counter = get_sensor_humidity(sensor)
+    amount_calc_water = 100 - sensor_counter
+    amount_water_new = amount_calc_water * 0.2
+    return amount_water_new
+
+
+def time_allowed_timedelta(plan, time):
+    next_denied_time = plan.get_next_denied_start_date_time
+    if(next_denied_time is not None):
+        time_valve_deactivate = datetime.now() + timedelta(minutes=time)
+        if (next_denied_time > time_valve_deactivate):
+            return True
+        else:
+            return False
+    else: # keine Verbotszeiten -> immer True
+        return True
+
+
+def get_sensor_list():
+    return Sensor.objects.all()
+
+
+def get_valve_list(automatic_plan):
+    # gebe alle Ventile des automatisierten Plans mit mind. 1 Sprenkler zurueck
+    return automatic_plan.valve.filter(sprinkler__isnull=False).distinct()
+
+
+def get_valve_pump_list(automatic_plan, pump):
+    return get_valve_list(automatic_plan).filter(pump_fk=pump)
+
+
+def get_pump_list(automatic_plan):
+    valves = get_valve_list(automatic_plan)
+    return Pump.objects.filter(valve__in=valves).distinct()
+
+
+def get_valve_sensor_list(sensor):
+    return Valve.objects.filter(sensor_fk=sensor)
+
+
+def set_watering_time_valve(valve, watering_time):
+    valve.watering_time = watering_time
+    valve.save()
+
+
+def add_weathercounter_to_valve_counter(valve):
+    try:
+        valve.valve_counter = valve.valve_counter + WeatherCounter.objects.last().weather_counter
+        valve.save()
+    except:
+        WeatherCounter.objects.create(weather_counter=0)
+
+
+def is_sensor_activ(plan):
+    return plan.automation_sensor
+
 
 def get_sensor_threshold(automatic_plan):
     return automatic_plan.moisture_threshold
@@ -289,7 +290,8 @@ def get_rain_forecast():
 
 
 def get_sensor_humidity(sensor):
-    return 10
+    # return get_humidity(sensor.id) # Abfrage an MC
+    return 10 # Testwert, da MC-Funktion noch nicht vollstaendig
 
 
 def get_pump_workload(pump):
