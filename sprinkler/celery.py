@@ -15,10 +15,14 @@ app = Celery('sprinkler')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
-    'every-15-min':{
+    'automatic_irrigation':{
         'task': 'webapp.tasks.aut_irrigation',
         'schedule': 15
         #'schedule': crontab(minute='*/15')
+    },
+    'read_weather':{
+        'task': 'webapp.tasks.read_weather',
+        'schedule': crontab(minute='*/15')
     }
 }
 
