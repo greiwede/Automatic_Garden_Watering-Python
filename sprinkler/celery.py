@@ -16,12 +16,12 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
     'automatic_irrigation':{
-        'task': 'webapp.tasks.aut_irrigation',
+        'task': 'sprinkler.tasks.aut_irrigation',
         'schedule': 15
         #'schedule': crontab(minute='*/15')
     },
     'read_weather':{
-        'task': 'webapp.tasks.read_weather',
+        'task': 'sprinkler.tasks.read_weather',
         'schedule': crontab(minute='*/15')
     }
 }

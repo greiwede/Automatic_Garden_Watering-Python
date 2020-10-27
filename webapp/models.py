@@ -166,9 +166,6 @@ class Valve(Device):
         if self.curr_active == False:
             self.pump_fk.add_to_current_workload(self.get_attached_flow_capacity())
             self.curr_active = True
-            attached_sprinklers = self.get_attached_sprinklers()
-            for sprinkler in attached_sprinklers:
-                sprinkler.activate()
             self.activate_date_time = timezone.now()
             self.save()
             set_valve(str(self.contr_id), "ON")
@@ -178,9 +175,6 @@ class Valve(Device):
         if self.curr_active == True:
             self.pump_fk.subtract_from_current_workload(self.get_attached_flow_capacity())
             self.curr_active = False
-            attached_sprinklers = self.get_attached_sprinklers()
-            for sprinkler in attached_sprinklers:
-                sprinkler.deactivate()
             time_difference = timezone.now() - self.activate_date_time
             WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
             self.activate_date_time = None
@@ -630,8 +624,11 @@ class WateringStatistic(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Calculates the water amount which was used during this time the valve was turned on.
-        flow_capacity = self.valve_fk.get_attached_flow_capacity()
-        self.water_amount = float(self.duration_seconds) / float(60) * float(flow_capacity)
+        try:
+            flow_capacity = self.valve_fk.get_attached_flow_capacity()
+            self.water_amount = float(self.duration_seconds) / float(60) * float(flow_capacity)
+        except:
+            pass
 
     def get_water_amount(self):
         return self.water_amount
