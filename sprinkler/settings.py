@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'webapp.apps.WebappConfig',
+    'django_extensions',
     'django_crontab',
     'django_celery_results',
     'django_celery_beat',
