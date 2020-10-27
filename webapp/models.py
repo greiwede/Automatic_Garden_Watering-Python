@@ -207,9 +207,15 @@ class ValveForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ValveForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-        })
+            if Valve._meta.get_field(field).get_internal_type() == 'BooleanField':
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-check'
+                })
+            else:
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-control'
+                })
+        
 
     class Meta:
         model = Valve
@@ -407,10 +413,14 @@ class PlanForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PlanForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control',
-                'onclick': 'myFunction()'
-            })
+            if Plan._meta.get_field(field).get_internal_type() == 'BooleanField':
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-check'
+                })
+            else:
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-control'
+                })
 
     class Meta:
         model = Plan
