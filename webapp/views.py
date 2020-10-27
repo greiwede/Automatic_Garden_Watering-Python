@@ -2,7 +2,8 @@
 #===================================================#
 #                   views.py                        #
 #===================================================#
-#  This file contains functions that controll the logic of the webapp and render the templates.
+# This file contains functions that controll        #
+# the logic of the webapp and render the templates. #
 #===================================================#
 # Developers: Malte Seelhöfer, Lennart von Werder   #
 #===================================================#
@@ -388,8 +389,21 @@ def plans_edit(request, plan_id):
     if request.method == 'POST':
         plan = Plan.objects.get(pk=plan_id)
         plan_form = PlanForm(request.POST, instance=plan)
-        plan_form.save()
-        return redirect('plans')
+
+        # Form validation
+        n_o_checked_automation_fields = 0
+        if request.POST.get('automation_rain', False) == 'on':
+            n_o_checked_automation_fields += 1
+        if request.POST.get('automation_temperature', False) == 'on':
+            n_o_checked_automation_fields += 1
+        if request.POST.get('automation_sensor', False) == 'on':
+            n_o_checked_automation_fields += 1
+        
+        if n_o_checked_automation_fields > 1:
+            args['error'] = "Es kann immer nur eine Art der Automatisierung gewählt werden. Bitte überprüfe deine Eingaben."
+        else:
+            new_plan = plan_form.save()
+            return redirect('plans')
     else:
         plan = Plan.objects.get(pk=plan_id)
         args['form'] = PlanForm(instance=plan)
@@ -631,6 +645,7 @@ def help(request):
     # Displays the help page.
     args = {}
     return TemplateResponse(request, "help.html", args)
+
 
 def logout_view(request):
     # Signs out the user and redirects to the index view

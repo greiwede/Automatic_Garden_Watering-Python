@@ -1,11 +1,11 @@
 """
-#===================================================#
-#                   views.py                        #
-#===================================================#
-#  This file contains all the database models and relations      #
-#===================================================#
-# Developers: Malte Seelhöfer, Lennart von Werder, Dennis Greiwede   #
-#===================================================#
+#===================================================================#
+#                          models.py                                #
+#===================================================================#
+#  This file contains all the database models and relations         #
+#===================================================================#
+# Developers: Malte Seelhoefer, Lennart von Werder, Dennis Greiwede #
+#===================================================================#
 """
 
 # Django standard imports
@@ -594,7 +594,7 @@ class ScheduleForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({    
                     'class': 'form-control'
                 })
-            i = i+1
+            i += 1
 
     class Meta:
         model = Schedule
