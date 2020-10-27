@@ -2,8 +2,7 @@
 #===================================================#
 #                   views.py                        #
 #===================================================#
-#  This file contains functions that make the       #
-#  webapp work.                                     #
+#  This file contains functions that controll the logic of the webapp and render the templates.
 #===================================================#
 # Developers: Malte Seelhöfer, Lennart von Werder   #
 #===================================================#

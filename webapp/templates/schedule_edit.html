@@ -24,9 +24,15 @@ var allow = document.getElementById("id_is_allow");
 var deny = document.getElementById("id_is_deny");
 function radioBehave0(){
   deny.checked = false;
+  if(!allow.checked){
+    deny.checked = true;
+  }
 }
 function radioBehave1(){
   allow.checked = false;
+  if(!deny.checked){
+    allow.checked = true;
+  }
 }
 
 
