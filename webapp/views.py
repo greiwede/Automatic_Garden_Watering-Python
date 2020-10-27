@@ -11,7 +11,7 @@ import sys
 sys.path.append("..")
 from .models import *
 from sprinkler.controller.interface import *
-from sprinkler.cron import read_weather
+from sprinkler.tasks import read_weather
 import json
 from geopy.geocoders import Nominatim
 from pyowm.owm import OWM
