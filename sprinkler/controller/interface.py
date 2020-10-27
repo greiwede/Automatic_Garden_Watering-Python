@@ -12,6 +12,7 @@
 
 
 import os
+import platform
 import subprocess
 import time
 import sys
@@ -24,8 +25,11 @@ from webapp.models import *
 
 def set_pump(pump_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_pump.py"
-        subprocess.call(['python2.7', path, pump_id, action])
+        if(platform.system()=='Linux'):
+            path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_pump.py"
+            subprocess.call(['python2.7', path, pump_id, action])
+        else:
+            print('Serial communication is supported on Linux only.')
         print("Pumpe: " + pump_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_pump ERROR")  # Fehlermeldung
@@ -36,8 +40,11 @@ def set_pump(pump_id, action):
 
 def set_valve(valve_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_valve.py"
-        subprocess.call(['python2.7', path, valve_id, action])
+        if(platform.system()=='Linux'):
+            path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_valve.py"
+            subprocess.call(['python2.7', path, valve_id, action])
+        else:
+            print('Serial communication is supported on Linux only.')
         print("Ventil: " + valve_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_valve ERROR")  # Fehlermeldung
@@ -98,10 +105,11 @@ def transfer_plan(plan):
     message_str = header_str + "\n" + pumpen_str + "\n" + valves_str + "\n" + schedules_str
 
     print("Message to controller:\n" + message_str)
-
-    path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
-
-    subprocess.call(['python2.7', path, message_str])
+    if(platform.system()=='Linux'):
+        path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
+        subprocess.call(['python2.7', path, message_str])
+    else:
+        print('Serial communication is supported on Linux only.')
 
 
 # Der delete_plan Befehl schickt dem Mikrocontroller den Befehl den zuvor
@@ -113,9 +121,11 @@ def delete_plan():
     message_str = header_str
     print("Message to controller:\n" + message_str)
 
-    path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
-
-    subprocess.call(['python2.7', path, message_str])
+    if(platform.system()=='Linux'):
+        path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
+        subprocess.call(['python2.7', path, message_str])
+    else:
+        print('Serial communication is supported on Linux only.')
 
 
 # Diese Methode soll in Zukunft die Messwerte des Feuchtigkeitssensors entgegennehmen

@@ -1,3 +1,14 @@
+"""
+#===================================================#
+#                   views.py                        #
+#===================================================#
+#  This file contains functions that make the       #
+#  webapp work.                                     #
+#===================================================#
+# Developers: Malte Seelhöfer, Lennart von Werder   #
+#===================================================#
+"""
+
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -82,9 +93,9 @@ def dashboard(request):
         else:
             args['daytime'] = 'd' # Day    
         # Get greeting
-        if ( hour >= 0 and hour < 6 ) or ( hour > 8 and hour <= 23 ):
+        if ( hour >= 0 and hour < 6 ) or ( hour > 20 and hour <= 23 ):
             args['greeting'] = "Guten Abend"
-        elif hour >= 6 and hour < 13:
+        elif hour >= 6 and hour < 10:
             args['greeting'] = "Guten Morgen"
         elif hour >= 13 and hour < 15:
             args['greeting'] = "Guten Mittag"
