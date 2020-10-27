@@ -1,3 +1,13 @@
+"""
+#===================================================#
+#                   views.py                        #
+#===================================================#
+#  This file contains all the database models and relations      #
+#===================================================#
+# Developers: Malte Seelhöfer, Lennart von Werder, Dennis Greiwede   #
+#===================================================#
+"""
+
 # Django standard imports
 from django.db import models
 from django.forms import ModelForm

@@ -25,7 +25,6 @@ action_sys = (str(sys.argv[2]))
 def set_pump(pump_id, action):
     uart.write(b'\n' + b'pump_id:' + pump_id)
     uart.write(b'\t' + b'STATUS-SET:' + action)
-    pass
 
 set_pump(pump_id_sys, action_sys)
 
