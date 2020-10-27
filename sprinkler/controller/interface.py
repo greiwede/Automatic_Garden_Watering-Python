@@ -6,7 +6,7 @@
 #  Django-Framework und der Hardwareansteuerung     #
 #  des Raspberry Pi's !                             #
 #===================================================#
-# Entwickler : Fabian Völker                        #
+# Entwickler : Fabian Voelker                       #
 #===================================================#
 """
 
@@ -32,7 +32,7 @@ def set_pump(pump_id, action):
 
 
 # Der set_valve Befehl schickt dem Mikrocontroller den Befehl das jeweilige
-# Ventil entweder zu öffnen oder zu schließen
+# Ventil entweder zu oeffnen oder zu schliessen
 
 def set_valve(valve_id, action):
     if action == "ON" or action == "OFF":
@@ -45,7 +45,7 @@ def set_valve(valve_id, action):
 
 # Der transfer_plan Befehl schickt dem Mikrocontroller den gesamten aktivierten
 # Zeitplan. Dieser wird dann vom Mikrocontroller gespeichert, damit dieser auch
-# ohne Weboberfläche und Raspberry funktionsfähig den Plan abspielen kann
+# ohne Weboberflaeche und Raspberry funktionsfaehig den Plan abspielen kann
 
 def transfer_plan(plan):
     # Get necessary objects
@@ -105,7 +105,7 @@ def transfer_plan(plan):
 
 
 # Der delete_plan Befehl schickt dem Mikrocontroller den Befehl den zuvor
-# gesendeten und eingespeicherten Plan zu löschen, um für einen neuen Plan
+# gesendeten und eingespeicherten Plan zu loeschen, um für einen neuen Plan
 # bereit zu sein
 
 def delete_plan():
@@ -119,13 +119,13 @@ def delete_plan():
 
 
 # Diese Methode soll in Zukunft die Messwerte des Feuchtigkeitssensors entgegennehmen
-# und mit in die automatisierte Bewässerung einbeziehen
+# und mit in die automatisierte Bewaesserung einbeziehen
 
 def get_humidity(sensor_id):
     pass
 
 
-# Diese Methode soll den Status des Mikrocontrollers abfragen können
+# Diese Methode soll den Status des Mikrocontrollers abfragen koennen
 
 def get_status():
     # return status des Microcontrollers
@@ -145,7 +145,7 @@ def wait_answer():
 
 
 # Nachdem eine Anfrage an den Mikrocontroller gesendet wurde, wird mit
-# dieser Methode überprüft, ob alle Daten angekommen sind.
+# dieser Methode ueberprueft, ob alle Daten angekommen sind.
 
 def check_sending(received_data):
     # if received_data== b'OK\r':
