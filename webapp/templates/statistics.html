@@ -18,11 +18,6 @@
 
 <canvas id="waterUsageChart"></canvas>
 
-<br>
-
-
-<canvas id="waterPieChart"></canvas>
-
 <br><br>
 
 <h3>Historie</h3>
@@ -49,39 +44,7 @@
     options: {}
 	});
 
-	var ctx2 = document.getElementById('waterPieChart').getContext('2d');
-	var chart2 = new Chart(ctx2, {
-	type: 'pie',
-	data: {
-			datasets: [{
-				data: [
-					1, 2, 3, 4, 5
-				],
-				backgroundColor: [
-				'rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')',
-				'rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')',
-				'rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')',
-				'rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')',
-				'rgb('+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+','+Math.floor(Math.random() * 256)+')',
-
-
-				],
-				label: 'Dataset 1'
-			}],
-			labels: [
-				'Rasen vorne',
-				'Kirschbaum',
-				'Rosen Terasse',
-				'Rasen hinten',
-				'Rododrendron'
-			]
-		},
-		options: {
-			responsive: true
-			
-		}
-		
-	});
+	
 </script>
 
 {% if watering_statistics %}

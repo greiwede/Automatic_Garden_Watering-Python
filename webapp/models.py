@@ -540,16 +540,19 @@ class ScheduleForm(forms.ModelForm):
     """Model form for the Schedule model"""
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
+        i = 0;
         for field in iter(self.fields):
+            functionName = 'radioBehave'+str(i)+'()'
             if Schedule._meta.get_field(field).get_internal_type() == 'BooleanField':
                 self.fields[field].widget.attrs.update({    
                     'class': 'form-check',
-                    'onclick': 'myFunction()'
+                    'onclick': functionName,
                 })
             else:
                 self.fields[field].widget.attrs.update({    
                     'class': 'form-control'
                 })
+            i = i+1
 
     class Meta:
         model = Schedule

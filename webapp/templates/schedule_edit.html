@@ -20,27 +20,20 @@
 </form>
 
 <script type="text/javascript">
-	function myFunction() {
-  // Get the checkbox
-  var allow = document.getElementById("id_is_allow");
-  var deny = document.getElementById("id_is_deny");
-
-  if(deny.checked == true){
-  	if(allow.checked==true){
-  		deny.checked = false;
-  	}
-
-  	allow.checked = false;
-  	
-  }else{	
-  	deny.checked = false;
-  	allow.checked = true;	
-  }
-  
+var allow = document.getElementById("id_is_allow");
+var deny = document.getElementById("id_is_deny");
+function radioBehave0(){
+  deny.checked = false;
+}
+function radioBehave1(){
+  allow.checked = false;
 }
 
+
 window.onload = function() {
-  myFunction();
+  if(allow.checked==false&&deny.checked==false){
+    allow.checked = true;
+  }
 };
 
 </script>
