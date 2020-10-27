@@ -96,7 +96,7 @@ def aut_irrigation():
                             file.write("       Das Ventil ")
                             file.write(valve.name)
                             file.write(" wird mit einer Dauer von ")
-                            file.write(str(valve.watering_time*60))
+                            file.write(str(valve.watering_time))
                             file.write(" Minuten angeschaltet")
                             file.write("\n")
                             file.close()
@@ -148,7 +148,7 @@ def calculate_water_amount_valve():
                     # Setze Sprengzeit = 0
                     valve_time = 0
                 else:
-                    water_amount = get_water_amount(valve, diff_counter_threshold) * get_valve_area(valve) - rain_amount
+                    water_amount = (get_water_amount(valve, diff_counter_threshold) - rain_amount) * get_valve_area(valve)
                     # Try, da falls kein Sprinkler zum Ventil zugeordnet ist ein Fehler in der Berechnung auftritt
                     try:
                         valve_time = water_amount / get_valve_flow_capacity(valve)
@@ -175,23 +175,23 @@ def get_water_amount(valve, diff_counter_threshold):
 
 def get_valve_area(valve):
     flow_capacity_hours = get_valve_flow_capacity(valve) * 60
-    if 200 >= flow_capacity_hours < 300:
+    if 200 <= flow_capacity_hours < 300:
         return 10
-    elif 300 >= flow_capacity_hours < 400:
+    elif 300 <= flow_capacity_hours < 400:
         return 15
-    elif 400 >=flow_capacity_hours < 500:
+    elif 400 <=flow_capacity_hours < 500:
         return 20
-    elif 500 >= flow_capacity_hours < 600:
+    elif 500 <= flow_capacity_hours < 600:
         return 25
-    elif 600 >= flow_capacity_hours < 700:
+    elif 600 <= flow_capacity_hours < 700:
         return 30
-    elif 700 >= flow_capacity_hours < 900:
+    elif 700 <= flow_capacity_hours < 900:
         return 40
-    elif 900 >= flow_capacity_hours < 1100:
+    elif 900 <= flow_capacity_hours < 1100:
         return 50
-    elif 1100 >= flow_capacity_hours < 1500:
+    elif 1100 <= flow_capacity_hours < 1500:
         return 70
-    elif 1500 >= flow_capacity_hours:
+    elif 1500 <= flow_capacity_hours:
         return 100
     else:
         return 1
@@ -222,9 +222,9 @@ def calc_needed_water_amount(sensor):
 
 
 def time_allowed_timedelta(plan, time):
-    next_denied_time = plan.get_next_denied_start_date_time
+    next_denied_time = plan.get_next_denied_start_date_time()
     if(next_denied_time is not None):
-        time_valve_deactivate = datetime.now() + timedelta(minutes=time)
+        time_valve_deactivate = datetime.datetime.now() + timedelta(minutes=int(time))
         if (next_denied_time > time_valve_deactivate):
             return True
         else:

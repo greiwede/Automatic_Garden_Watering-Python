@@ -367,6 +367,8 @@ class Plan(CommonInfo):
         next_denied_start_date_time = None
         if self.is_active_plan:
             schedules = self.get_related_schedules()
+            if schedules.first() is None:
+                return None
             for schedule in schedules:
                 if schedule.is_deny:
                     schedule_next_date_time = schedule.get_next_date_time(schedule.get_weekdays(),
@@ -379,6 +381,8 @@ class Plan(CommonInfo):
     def is_allow_time(self):
         """It is an allowed time if none of the associated Schedules is a denied time window and at least one of the Schedules is in an allowed time window."""
         schedules = self.get_related_schedules()
+        if schedules.first() is None:
+            return True
         for schedule in schedules:
             allow_time = False
             if schedule.is_denied_time():
