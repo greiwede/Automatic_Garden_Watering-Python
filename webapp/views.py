@@ -347,8 +347,21 @@ def plans_create(request):
     # If there are POST values, the plan is getting saved, and the user will be redirected to edit page.
     if request.method == 'POST':
         plan_form = PlanForm(request.POST)
-        new_plan = plan_form.save()
-        return redirect('plan_edit', new_plan.id)
+
+        # Form validation
+        n_o_checked_automation_fields = 0
+        if request.POST.get('automation_rain', False) == 'on':
+            n_o_checked_automation_fields += 1
+        if request.POST.get('automation_temperature', False) == 'on':
+            n_o_checked_automation_fields += 1
+        if request.POST.get('automation_sensor', False) == 'on':
+            n_o_checked_automation_fields += 1
+        
+        if n_o_checked_automation_fields > 1:
+            args['error'] = "Es kann immer nur eine Art der Automatisierung gewählt werden. Bitte überprüfe deine Eingaben."
+        else:
+            new_plan = plan_form.save()
+            return redirect('plan_edit', new_plan.id)
 
     return TemplateResponse(request, "plans_create.html", args)
 
