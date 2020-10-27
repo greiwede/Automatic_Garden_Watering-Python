@@ -82,7 +82,7 @@ def dashboard(request):
         else:
             args['daytime'] = 'd' # Day    
         # Get greeting
-        if ( hour >= 0 and hour < 6 ) or ( hour > 8 and hour <= 23 ):
+        if ( hour >= 0 and hour < 6 ) or ( hour > 20 and hour <= 23 ):
             args['greeting'] = "Guten Abend"
         elif hour >= 6 and hour < 13:
             args['greeting'] = "Guten Morgen"
