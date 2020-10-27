@@ -25,6 +25,5 @@ action_sys = (str(sys.argv[2]))
 def set_valve(valve_id, action):
     uart.write(b'\n' + b'valve_id:' + valve_id)
     uart.write(b'\t' + b'STATUS-SET:' + action)
-    pass
 
 set_valve(valve_id_sys, action_sys)
