@@ -13,11 +13,11 @@ from datetime import datetime, timedelta
 def deactivate_valve(valve_id, watering_time):
     time.sleep(watering_time * 60)  # warte Zeit in Sekunden
     valve = Valve.objects.get(pk=valve_id)
-    file = open("test.txt", "a")
+    file = open("auto_irrigation_log.txt", "a")
     file.write("        Das Ventil ")
     file.write(valve.name)
     file.write(" wird nach einer Dauer von ")
-    file.write(str(watering_time * 60))
+    file.write(str(watering_time))
     file.write(" Minuten ausgeschaltet")
     file.write("\n")
     valve.deactivate() # Modelfunktion zum deaktivieren aufrufen
@@ -25,23 +25,23 @@ def deactivate_valve(valve_id, watering_time):
 
 @shared_task
 def aut_irrigation():
-    file = open("test.txt", "a")
+    file = open("auto_irrigation_log.txt", "a")
     file.write("Die Funktion der automatisierten Bewaesserung wird aufgerufen \n")
     file.close()
     automatic_plan = get_activ_automatic_plan()
     # automatischer Plan aktiv?
     if automatic_plan is not None:
-        file = open("test.txt", "a")
+        file = open("auto_irrigation_log.txt", "a")
         file.write(" Es ist ein automatisierter Plan aktiv \n")
         file.close()
         # Zeitraum zum Sprengen erlaubt?
         if time_allowed():  # Abfrage an Model
-            file = open("test.txt", "a")
+            file = open("auto_irrigation_log.txt", "a")
             file.write("  Der aktuelle Zeitraum ist erlaubt  \n")
             file.close()
             # mind. 1 Bodensensor aktiv?
             if is_sensor_activ(automatic_plan):
-                file = open("test.txt", "a")
+                file = open("auto_irrigation_log.txt", "a")
                 file.write("   Es handelt sich um eine automatisierte Bewaesserung mit Sensor \n")
                 file.close()
                 # alle Sensoren aus Model abrufen
@@ -59,7 +59,7 @@ def aut_irrigation():
                             valve)  # durchschnittliche Bewaesserungszeit fuer jeden Sprinkler des Ventils berechnen
                         set_watering_time_valve(valve, valve_time)
             else:
-                file = open("test.txt", "a")
+                file = open("auto_irrigation_log.txt", "a")
                 file.write("   Es handelt sich um eine automatisierte Bewaesserung mit dem Wetterzaehler \n")
                 file.close()
                 valve_list = get_valve_list(automatic_plan)
@@ -67,7 +67,7 @@ def aut_irrigation():
                 for valve in valve_list:
                     # Addiere Wetterzaehler zu jeden Ventilzaehler
                     add_weathercounter_to_valve_counter(valve)
-                    file = open("test.txt", "a")
+                    file = open("auto_irrigation_log.txt", "a")
                     file.write("    Bei dem Ventil mit den Namen ")
                     file.write(valve.name)
                     file.write(" wird der Ventilzaehler auf:")
@@ -85,7 +85,7 @@ def aut_irrigation():
                 valve_list_sort = get_valve_pump_list(automatic_plan, pump).order_by('-watering_time')
                 # Sprengzeit > 0 bei mind. 1 Ventil?
                 if valve_list_sort.first().watering_time > 0:
-                    file = open("test.txt", "a")
+                    file = open("auto_irrigation_log.txt", "a")
                     file.write("      Es existiert ein Ventil mit einer Sprengzeit groesser als \n")
                     file.close()
                     # Schleife - Ventile der jeweiligen Pumpe
@@ -93,7 +93,7 @@ def aut_irrigation():
                         # Pumpe ausgelastet oder keine Wassermenge > 0?
                         if get_pump_workload(pump) + get_valve_flow_capacity(
                                 valve) <= get_pump_flow_capacity(pump) and valve.watering_time > 0:
-                            file = open("test.txt", "a")
+                            file = open("auto_irrigation_log.txt", "a")
                             file.write("       Das Ventil ")
                             file.write(valve.name)
                             file.write(" wird mit einer Dauer von ")
@@ -104,20 +104,33 @@ def aut_irrigation():
                             # Schalte Ventil ein
                             ##########
                             # Sprengzeit während der gesamten Sprengdauer erlaubt? ergänzen
-                            ##########
-                            if valve.curr_active:
-                                valve.activate()
-                                # rufe deaktiviere-Methode auf( ueber Celery)
-                                # diese wartet solange, bis das Ventil deaktiviert werden muss
-                                deactivate_valve.delay(valve.id, int(valve.watering_time))
-                                # reset valve.watering_time and valve.valve_counter
-                                valve.watering_time = 0
-                                valve.valve_counter = 0
-                                valve.save()
+                            if(time_allowed_timedelta(automatic_plan, valve.watering_time)):
+                                if valve.curr_active:
+                                    valve.activate()
+                                    # rufe deaktiviere-Methode auf( ueber Celery)
+                                    # diese wartet solange, bis das Ventil deaktiviert werden muss
+                                    deactivate_valve.delay(valve.id, int(valve.watering_time))
+                                    # reset valve.watering_time and valve.valve_counter
+                                    valve.watering_time = 0
+                                    valve.valve_counter = 0
+                                    valve.save()
 
 
 def time_allowed():
     return True
+
+
+def time_allowed_timedelta(plan, time):
+    next_denied_time = plan.get_next_denied_start_date_time
+    if(next_denied_time is not None):
+        time_valve_deactivate = datetime.now() + timedelta(minutes=time)
+        if (next_denied_time > time_valve_deactivate):
+            return True
+        else:
+            return False
+    else: # keine Verbotszeiten -> immer True
+        return True
+
 
 
 def get_sensor_list():
@@ -208,7 +221,7 @@ def calculate_water_amount_valve():
                     # Setze Sprengzeit = 0
                     valve_time = 0
                 else:
-                    water_amount = get_water_amount(valve, diff_counter_threshold) - rain_amount
+                    water_amount = get_water_amount(valve, diff_counter_threshold) * get_valve_area(valve) - rain_amount
                     # Try, da falls kein Sprinkler zum Ventil zugeordnet ist ein Fehler in der Berechnung auftritt
                     try:
                         valve_time = water_amount / get_valve_flow_capacity(valve)
@@ -216,7 +229,7 @@ def calculate_water_amount_valve():
                         valve_time = 0
             else:
                 valve_time = 0
-            file = open("test.txt", "a")
+            file = open("auto_irrigation_log.txt", "a")
             file.write("     Sprengzeit wird bei Ventil ")
             file.write(valve.name)
             file.write(" auf den Wert ")
@@ -230,13 +243,32 @@ def calculate_water_amount_valve():
 
 def get_water_amount(valve, diff_counter_threshold):
     amount_sprinkler = Sprinkler.objects.filter(valve_fk=valve).count()
-    file = open("test.txt", "a")
-    file.write("Anzahl Sprinkler fuer Ventil")
-    file.write(str(amount_sprinkler))
-    file.write(valve.name)
-    file.write("\n")
-    file.close()
     return (diff_counter_threshold / 5) * amount_sprinkler
+
+
+def get_valve_area(valve):
+    flow_capacity_hours = get_valve_flow_capacity(valve) * 60
+    if 200 >= flow_capacity_hours < 300:
+        return 10
+    elif 300 >= flow_capacity_hours < 400:
+        return 15
+    elif 400 >=flow_capacity_hours < 500:
+        return 20
+    elif 500 >= flow_capacity_hours < 600:
+        return 25
+    elif 600 >= flow_capacity_hours < 700:
+        return 30
+    elif 700 >= flow_capacity_hours < 900:
+        return 40
+    elif 900 >= flow_capacity_hours < 1100:
+        return 50
+    elif 1100 >= flow_capacity_hours < 1500:
+        return 70
+    elif 1500 >= flow_capacity_hours:
+        return 100
+    else:
+        return 1
+
 
 
 def get_sensor_threshold(automatic_plan):
@@ -258,10 +290,6 @@ def get_rain_forecast():
 
 def get_sensor_humidity(sensor):
     return 10
-
-
-def is_pump_deactivated(pump):
-    return pump.curr_active
 
 
 def get_pump_workload(pump):

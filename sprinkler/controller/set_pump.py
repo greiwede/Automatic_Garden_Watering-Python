@@ -5,7 +5,7 @@
 #  Dieses Skript sendet den Befehl zum an- oder     #
 #  ausschalten der Pumpe an den Mikrocontroller     #
 #===================================================#
-# Entwickler : Fabian Völker                        #
+# Entwickler : Fabian Voelker                       #
 #===================================================#
 """
 

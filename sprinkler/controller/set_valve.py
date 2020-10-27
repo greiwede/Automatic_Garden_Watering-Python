@@ -2,8 +2,8 @@
 #===================================================#
 #                   set_valve.py                    #
 #===================================================#
-#  Dieses Skript sendet den Befehl zum öffnen oder  #
-#  schließen eines Ventils an den Mikrocontroller   #
+#  Dieses Skript sendet den Befehl zum oeffnen oder #
+#  schliessen eines Ventils an den Mikrocontroller  #
 #===================================================#
 # Entwickler : Fabian Voelker                       #
 #===================================================#
@@ -20,7 +20,7 @@ action_sys = (str(sys.argv[2]))
 
 
 # Der set_valve Befehl schickt dem Mikrocontroller den Befehl das jeweilige
-# Ventil entweder zu öffnen oder zu schließen
+# Ventil entweder zu oeffnen oder zu schliessen
 
 def set_valve(valve_id, action):
     uart.write(b'\n' + b'valve_id:' + valve_id)
