@@ -1,12 +1,13 @@
+"""
 #===================================================#
 #                 transfer_plan.py                  #
 #===================================================#
 #      Dieses Skript sendet den Plan an den         #
 #     Mikrocontroller, der diesen abspeichert       #
 #===================================================#
-# Entwickler : Fabian Völker                        #
+# Entwickler : Fabian Voelker                       #
 #===================================================#
-
+"""
 
 import serial
 import sys

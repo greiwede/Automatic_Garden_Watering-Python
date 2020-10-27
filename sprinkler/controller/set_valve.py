@@ -1,12 +1,13 @@
+"""
 #===================================================#
 #                   set_valve.py                    #
 #===================================================#
 #  Dieses Skript sendet den Befehl zum öffnen oder  #
 #  schließen eines Ventils an den Mikrocontroller   #
 #===================================================#
-# Entwickler : Fabian Völker                        #
+# Entwickler : Fabian Voelker                       #
 #===================================================#
-
+"""
 
 import serial
 import sys
