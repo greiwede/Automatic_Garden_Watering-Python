@@ -127,6 +127,11 @@ def deactivate_valve(valve_id, watering_time):
 
 
 def calculate_water_amount_valve():
+    """
+    Entwickler: Niclas Dagge & Dennis Greiwe
+
+    Berechnung der benoetigten Wassermenge, wenn kein Bodenfeuchtigkeitssensor aktiv ist
+    """
     valve_time = 0
     rain_amount = 0
     automatic_plan = get_activ_automatic_plan()
@@ -169,11 +174,21 @@ def calculate_water_amount_valve():
 
 
 def get_water_amount(valve, diff_counter_threshold):
+    """
+    Entwickler: Niclas Dagge
+
+    Ermittelt die benoetigte Wassermenge des uebergebenen Ventils
+    """
     amount_sprinkler = Sprinkler.objects.filter(valve_fk=valve).count()
     return (diff_counter_threshold / 5) * amount_sprinkler
 
 
 def get_valve_area(valve):
+    """
+    Entwickler: Niclas Dagge
+
+    Ermittelt aus Durchflussmenge einen ungefaehren Wert fuer die Quadratmeteranzahl eines Ventils
+    """
     flow_capacity_hours = get_valve_flow_capacity(valve) * 60
     if 200 <= flow_capacity_hours < 300:
         return 10
@@ -199,8 +214,12 @@ def get_valve_area(valve):
         return 1
 
 
-# Wassermenge berechnet fuer mit Sensor
 def calculate_water_amount_sensor(sensor):
+    """
+    Entwickler: Niclas Dagge & Dennis Greiwe
+
+    Berechnung der benoetigten Wassermenge, wenn mindestens ein Bodenfeuchtigkeitssensor aktiv ist
+    """
     rain_amount = 0
     automatic_plan = get_activ_automatic_plan()
     if automatic_plan is not None:
@@ -217,6 +236,11 @@ def calculate_water_amount_sensor(sensor):
 
 
 def calc_needed_water_amount(sensor):
+    """
+    Entwickler: Niclas Dagge
+
+    Ermittelt die benoetigte Wassermenge fuer ein Ventil auf Grundlage der Sensordaten
+    """
     sensor_counter = get_sensor_humidity(sensor)
     amount_calc_water = 100 - sensor_counter
     amount_water_new = amount_calc_water * 0.2
@@ -224,6 +248,7 @@ def calc_needed_water_amount(sensor):
 
 
 def time_allowed_timedelta(plan, time):
+    """Ermittelt aus der Datenbank, ob wahrend des Ablaufs der uebergeben Zeit die Sperrezeit zum Sprengen erreicht wird"""
     next_denied_time = plan.get_next_denied_start_date_time()
     if(next_denied_time is not None):
         time_valve_deactivate = datetime.datetime.now() + timedelta(minutes=int(time))
@@ -236,33 +261,39 @@ def time_allowed_timedelta(plan, time):
 
 
 def get_sensor_list():
+    """Erstellt eine Liste aller in der Datenbank gespeicherten Sensoren"""
     return Sensor.objects.all()
 
 
 def get_valve_list(automatic_plan):
-    # gebe alle Ventile des automatisierten Plans mit mind. 1 Sprenkler zurueck
+    """Erstellt eine Liste aller in der Datenbank gespeicherten Ventile, welche im automatischen Plan vorhanden sind"""
     return automatic_plan.valve.filter(sprinkler__isnull=False).distinct()
 
 
 def get_valve_pump_list(automatic_plan, pump):
+    """Erstellt eine Liste aller in der Datenbank gespeicherten Ventile , die an der uebergebenen Pumpe angeschlossen sind"""
     return get_valve_list(automatic_plan).filter(pump_fk=pump)
 
 
 def get_pump_list(automatic_plan):
+    """Erstellt eine Liste aller in der Datenbank gespeicherten Pumpen, welche im automatischen Plan vorhanden sind"""
     valves = get_valve_list(automatic_plan)
     return Pump.objects.filter(valve__in=valves).distinct()
 
 
 def get_valve_sensor_list(sensor):
+    """Erstellt eine Liste aller Ventile in der Datenbank, die mit dem uebergebenen Sensor bearbeitet werden"""
     return Valve.objects.filter(sensor_fk=sensor)
 
 
 def set_watering_time_valve(valve, watering_time):
+    """Setzt den uebergebenen Wert fuer die Bewaesserungszeit in der Datenbank entsprechend der uebergebenen Bewaesserungszeit"""
     valve.watering_time = watering_time
     valve.save()
 
 
 def add_weathercounter_to_valve_counter(valve):
+    """Erhoeht den Wert fuer den Ventilzaehler in der Datenbank um den Wetterzaehler"""
     try:
         valve.valve_counter = valve.valve_counter + WeatherCounter.objects.last().weather_counter
         valve.save()
@@ -271,45 +302,54 @@ def add_weathercounter_to_valve_counter(valve):
 
 
 def is_sensor_activ(plan):
+    """Ermittelt aus der Datenbank, ob mindestens ein Bodenfeuchtigkeitssensor aktiv ist"""
     return plan.automation_sensor
 
 
 def get_sensor_threshold(automatic_plan):
+    """Liest Grenzwert des Bodenfeuchtigkeitssensors, um mit dem Sprengen zu beginnen, aus der Datenbank aus"""
     return automatic_plan.moisture_threshold
 
 
 def get_valve_threshold(automatic_plan):
+    """Liest Grenzwert des Ventils, um mit dem Sprengen zu beginnen,  aus der Datenbank aus"""
     return automatic_plan.valve_threshold
 
 
 def get_valve_counter(valve):
+    """Liest Wetterzaehler des uebergebenen Ventils aus der Datenbank aus"""
     return valve.valve_counter
 
 
-# wo genau wird das gespeichert?
 def get_rain_forecast():
+    """Ermittelt aus der Datenbank den Regen ueber einen bestimmten Zeitraum in der Zukunft"""
     return 0
 
 
 def get_sensor_humidity(sensor):
+    """Ermittelt Wert des Bodenfeuchtigkeitssensors durch Kommunikation mit dem Mikrocontroller"""
     # return get_humidity(sensor.id) # Abfrage an MC
     return 10 # Testwert, da MC-Funktion noch nicht vollstaendig
 
 
 def get_pump_workload(pump):
+    """Ermittelt aus der Datenbank momentane Auslastung der uebergebenen Pumpe"""
     return pump.current_workload
 
 
 def get_pump_flow_capacity(pump):
+    """Ermittelt aus der Datenbank maximale Wasserauslastung der uebergebenen Pumpe"""
     return pump.flow_capacity
 
 
 def get_valve_flow_capacity(valve):
+    """Ermittelt aus Datenbank Durchflussmenge des uebergebenen Ventils"""
     result = Sprinkler.objects.filter(valve_fk=valve).aggregate(summe=Sum('flow_capacity'))['summe']
     return result
 
 
 def get_activ_automatic_plan():
+    """Ermittelt aus der Datenbank, ob ein automatiserter Plan aktiv ist und wenn ja welcher"""
     plans = Plan.objects.filter(is_active_plan=True)
     for plan in plans:
         if plan.automation_rain or plan.automation_sensor or plan.automation_temperature:
@@ -319,6 +359,7 @@ def get_activ_automatic_plan():
 
 @shared_task
 def read_weather():
+    """Entwickler: Malte Seelhoefer"""
     args = {}
 
     # Get Location and API Key - if not exist raise exception
