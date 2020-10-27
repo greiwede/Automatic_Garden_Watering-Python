@@ -2,6 +2,6 @@
 
 .background_img{
   	background-image: url("../img/day.jpg");
-  	background-size: cover;
   	color:white;
+  	background-size: cover;
 }
