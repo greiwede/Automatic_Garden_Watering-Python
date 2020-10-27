@@ -11,7 +11,7 @@ echo -e "\e[92mPackage list updated successfully\033[0m"
 
 # install required packages
 echo -e "\e[93mInstalling required packages\033[0m"
-apt-get install python3 python3-venv curl git rabbitmq-server libatlas-base-dev -y
+apt-get install python3 python3-venv python2.7 curl git rabbitmq-server libatlas-base-dev -y
 echo -e "\e[92mFinished installing required packages\033[0m"
 
 # install pip
