@@ -541,9 +541,15 @@ class ScheduleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-        })
+            if Schedule._meta.get_field(field).get_internal_type() == 'BooleanField':
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-check',
+                    'onclick': 'myFunction()'
+                })
+            else:
+                self.fields[field].widget.attrs.update({    
+                    'class': 'form-control'
+                })
 
     class Meta:
         model = Schedule
