@@ -46,11 +46,19 @@
     </tr>
   </thead>
 
+  <style type="text/css">
+    .custom_edit_link{
+      color:black;
+    }
+    [data-theme="dark"] .custom_edit_link {
+      color: white;
+    }
+  </style>
 
   <tbody>
     {% for plan in plans %}
     <tr scope="row" {% if plan.is_active_plan %}class="table-success"{% endif %}>
-      <td>{{ plan.name }}</td>
+      <td><a class="custom_edit_link" href="{% url 'plan_edit' plan.id %}" role="button">{{ plan.name }}</a></td>
       <td>
         {% if plan.status == 'OK' %}
         <span class="badge badge-success">OK</span>
