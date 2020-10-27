@@ -14,13 +14,13 @@ pyowm
 pytz
 
 # Timezonefinder including numba
-timezonefinder[numba]
+timezonefinder
 
 # Serial communication
 pyserial
 
 ### Celery requirements
-celery<5.0,>=4.4
+celery==4.4.7
 rabbitmq
-django-celery-results
-django-celery-beat
+django-celery-results==1.2.1
+django-celery-beat==2.0.0
