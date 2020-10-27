@@ -1,16 +1,20 @@
+# Django standard imports
 from django.db import models
 from django.forms import ModelForm
 from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+# Standard modules
+import datetime
 import sys
 sys.path.append("..")
+
+# File imports
 from sprinkler.controller.interface import *
 
-import datetime
-
-import pytz
+# Other modules
+import pytz # Python Timezone module
 
 # Status Choices for Plans & Devices
 STATUS_CHOICES = [
@@ -21,6 +25,7 @@ STATUS_CHOICES = [
 
 
 class CommonInfo(models.Model):
+    """This contains common info (attributes and functions) other models can inherit from."""
     name = models.CharField(max_length=200)
     status = models.CharField(
         max_length=10,
@@ -36,9 +41,10 @@ class CommonInfo(models.Model):
 
 
 class Device(CommonInfo):
-    contr_id = models.IntegerField()
+    """This class is the abstraction layer for all hardware devices."""
+    contr_id = models.IntegerField() # Controller ID
     device_type = None
-    device_type_id = None 
+    device_type_id = None
 
     class Meta:
         abstract = True
@@ -46,18 +52,21 @@ class Device(CommonInfo):
 
 # Pump Model
 class Pump(Device):
+    """Representation of the pump which valves can attach to."""
     curr_active = models.BooleanField(default=False)
     device_type = 'Pump'
-    flow_capacity = models.DecimalField(max_digits=5, decimal_places=2)
+    flow_capacity = models.DecimalField(max_digits=5, decimal_places=2) # Maximum flow capacity the pump can make work
     current_workload = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def activate(self):
+        """Activate sets current status to on and initiates message to the controller."""
         if self.curr_active == False:
             self.curr_active = True
             self.save()
             set_pump(str(self.contr_id), "ON")
 
     def deactivate(self):
+        """Deactivate sets current status to off, turns off all attached valves and initiates message to the controller."""
         if self.curr_active == True:
             self.curr_active = False
             self.save()
@@ -70,12 +79,22 @@ class Pump(Device):
         return Valve.objects.filter(pump_fk__exact=self)
 
     def add_to_current_workload(self, add_value):
+        """
+        Value gets add to current workload.  
+        
+        If the workload results in a value greater than 0 the pump gets turned on.
+        """
         self.current_workload += add_value
         self.save()
         if self.current_workload > 0:
             self.activate()
 
     def subtract_from_current_workload(self, subtract_value):
+        """
+        Value gets subtracted from current workload.  
+        
+        If the workload results in a value equal to 0 the pump gets turned off.
+        """
         self.current_workload -= subtract_value
         self.save()
         if self.current_workload == 0:
@@ -83,6 +102,7 @@ class Pump(Device):
 
 
 class PumpForm(forms.ModelForm):
+    """Model form for the Pump model"""
     def __init__(self, *args, **kwargs):
         super(PumpForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -101,9 +121,10 @@ class PumpForm(forms.ModelForm):
 
 
 class Sensor(Device):
+    """This represents a humidity sensor which is connected to one or more valves."""
     curr_active = models.BooleanField(default=False)
     device_type = 'Sensor'
-    moisture = None
+    moisture = models.DecimalField(max_length=5, max_digits=2, default=0)
 
     def activate(self):
         if self.curr_active == False:
@@ -117,6 +138,7 @@ class Sensor(Device):
 
 
 class SensorForm(forms.ModelForm):
+    """Model form for the Sensor model"""
     def __init__(self, *args, **kwargs):
         super(SensorForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -134,6 +156,12 @@ class SensorForm(forms.ModelForm):
 
 
 class Valve(Device):
+    """
+    This represents the connection in between one pump and one to many sprinklers.  
+    
+    A valve can be opened or closed which results in either all attached sprinklers being
+    turned on of none.
+    """
     curr_active = models.BooleanField(default=False)
     device_type = 'Ventil'
     valve_counter = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -141,9 +169,10 @@ class Valve(Device):
     sensor_fk = models.ForeignKey(Sensor, on_delete=models.SET_NULL, blank=True, null=True)
     pump_fk = models.ForeignKey(Pump, on_delete=models.SET_NULL, null=True)
 
-    activate_date_time = models.DateTimeField(blank=True, null=True)
+    activate_date_time = models.DateTimeField(blank=True, null=True) # Stores this information for the entry in the logging table (WateringStatistic model)
 
     def activate(self):
+        """Sets currently active to on, adds the workload of the attached sprinklers to the pump workload and activates the sprinklers."""
         if self.curr_active == False:
             self.pump_fk.add_to_current_workload(self.get_attached_flow_capacity())
             self.curr_active = True
@@ -155,6 +184,7 @@ class Valve(Device):
             set_valve(str(self.contr_id), "ON")
     
     def deactivate(self):
+        """Sets currently active to off, subtracts the workload of the attached sprinklers form the pump and deactivates the sprinklers."""
         if self.curr_active == True:
             self.pump_fk.subtract_from_current_workload(self.get_attached_flow_capacity())
             self.curr_active = False
@@ -179,6 +209,7 @@ class Valve(Device):
 
 
 class ValveForm(forms.ModelForm):
+    """Model form for the Valve model"""
     def __init__(self, *args, **kwargs):
         super(ValveForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -199,6 +230,7 @@ class ValveForm(forms.ModelForm):
 
 # Sprinkler Model
 class Sprinkler(Device):
+    """This represents the last object in the chain after the pump and the valve."""
     curr_active = models.BooleanField(default=False)
     device_type = 'Sprinkler'
     flow_capacity = models.DecimalField(max_digits=5, decimal_places=2)
@@ -219,6 +251,7 @@ class Sprinkler(Device):
 
 # Form for Sprinkler
 class SprinklerForm(forms.ModelForm):
+    """Model form for the Sprinkler model"""
     def __init__(self, *args, **kwargs):
         super(SprinklerForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -253,8 +286,8 @@ class WeatherCounter(models.Model):
                 self.weather_counter = counter
                 self.save()
 
-    # Platzhalter zur Pruefung, ob ein Sensor aktiv ist
     def is_sensor_activ(self):
+        # Placeholder for the check if a sensor is active
         return False
 
     def get_rain(self):
@@ -296,6 +329,13 @@ class WeatherCounter(models.Model):
 
 
 class Plan(CommonInfo):
+    """
+    This represents a plan a user can create.  
+    
+    A plan can either be an automatic plan or a manual plan.  
+    When its a manual plan the user can define certain time intervals (ref. Schedule model) in which the plan should be executed.  
+    When its an automatic plan the application itself calculates based on different inputs when the garden needs to be watered.
+    """
     is_active_plan = models.BooleanField(default=False)
     description = models.CharField(max_length=3000)
 
@@ -316,6 +356,7 @@ class Plan(CommonInfo):
         return self.schedule_set.all()
     
     def activate(self):
+        """Deactivates all plans and afterwards activates self"""
         if self.is_active_plan == False:
             plans = Plan.objects.all()
             for plan in plans:
@@ -332,6 +373,7 @@ class Plan(CommonInfo):
             self.save()
 
     def get_next_allowed_start_date_time(self):
+        """Gets the datetime objects based on all related Schedule objects."""
         next_allowed_start_date_time = None
         if self.is_active_plan:
             schedules = self.get_related_schedules()
@@ -345,6 +387,7 @@ class Plan(CommonInfo):
         return next_allowed_start_date_time
     
     def get_next_denied_start_date_time(self):
+        """Gets the datetime objects based on all related Schedule objects."""
         next_denied_start_date_time = None
         if self.is_active_plan:
             schedules = self.get_related_schedules()
@@ -358,6 +401,7 @@ class Plan(CommonInfo):
         return next_allowed_start_date_time
     
     def is_allow_time(self):
+        """It is an allowed time if none of the associated Schedules is a denied time window and at least one of the Schedules is in an allowed time window."""
         schedules = self.get_related_schedules()
         for schedule in schedules:
             allow_time = False
@@ -369,6 +413,7 @@ class Plan(CommonInfo):
 
 
 class PlanForm(forms.ModelForm):
+    """Model form for the Plan model"""
     def __init__(self, *args, **kwargs):
         super(PlanForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -393,6 +438,11 @@ class PlanForm(forms.ModelForm):
         }
 
 class Schedule(models.Model):
+    """
+    This model is always linked to a Plan object.  
+    
+    A schedule can define either an allowed or a denied time window. 
+    """
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE)
 
     is_deny = models.BooleanField(default=False)
@@ -415,6 +465,7 @@ class Schedule(models.Model):
     next_denied_end_date_time = None
 
     def get_next_date_time(self, weekdays, dt):
+        """This is a helper function which returns the next datetime at which a time window in this schedule is met."""
         weekday = datetime.datetime.now().weekday()
 
         for i in range(0, 8):
@@ -485,6 +536,7 @@ class Schedule(models.Model):
 
 
 class ScheduleForm(forms.ModelForm):
+    """Model form for the Schedule model"""
     def __init__(self, *args, **kwargs):
         super(ScheduleForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
@@ -511,7 +563,7 @@ class ScheduleForm(forms.ModelForm):
         }
 
 class Location(models.Model):
-    """ Location Model """
+    """This represents a location. The main purpose is to save location meta data to display it in the frontend."""
     city = models.CharField(max_length=200, blank=True)
     town = models.CharField(max_length=200, blank=True)
     village = models.CharField(max_length=200, blank=True)
@@ -525,6 +577,7 @@ class Location(models.Model):
     longitude = models.DecimalField(max_digits=7, decimal_places=5)
 
     def __str__(self):
+        """Creates the string which is displayed different frontend locations"""
         name = ''
         if self.city != '':
             name = name + self.city + ', '
@@ -544,7 +597,11 @@ class Location(models.Model):
 
 
 class WeatherStatus(models.Model):
-    """ WeatherStatus Model """
+    """
+    This model represents a weather status from the OWM-Weather status.  
+    
+    The objects of this models are static and will not be changed during runtime.
+    """
     owm_id = models.IntegerField()
     name = models.CharField(max_length=32)
     description = models.CharField(max_length=128)
@@ -555,7 +612,7 @@ class WeatherStatus(models.Model):
 
 
 class WeatherData(models.Model):
-    """ WeatherData Model """
+    """This represents a weather status at a certain time."""
     reference_time = models.DateTimeField()
     last_update_time = models.DateTimeField()
     reception_time = models.DateTimeField()
@@ -574,13 +631,17 @@ class WeatherData(models.Model):
 
 
 class UserSettings(models.Model):
-    """ UserSettings Model """
+    """This is used to store user-based data."""
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     owm_api_key = models.CharField(max_length=32, blank=True)
 
 
 class WateringStatistic(models.Model):
-    """ WateringStatistics Model """
+    """
+    This is a logging model.  
+    
+    A new object of this model is created every time a valve gets turned off.
+    """
     start_time = models.DateTimeField()
     valve_fk = models.ForeignKey(Valve, on_delete=models.SET_NULL, null=True)
     duration_seconds = models.DecimalField(max_digits=5, decimal_places=2)
@@ -588,6 +649,7 @@ class WateringStatistic(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Calculates the water amount which was used during this time the valve was turned on.
         flow_capacity = self.valve_fk.get_attached_flow_capacity()
         self.water_amount = float(self.duration_seconds) / float(60) * float(flow_capacity)
 
