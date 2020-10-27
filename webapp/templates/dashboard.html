@@ -43,8 +43,8 @@
             <div class="media">
               <img src="{% static 'webapp/img/icons/sprinkler.svg' %}" width="64" class="mr-3">
               <div class="media-body">
-                <h5 class="mt-0">Alle Geräte funktionieren</h5>
-                <p class="card-text">Du musst nichts weiter unternehmen.</p>
+                <h5 class="mt-0">Alle Geräte</h5>
+                <p class="card-text">Füge neue Geräte hinzu oder ändere bestehende</p>
                 <a href="{% url 'devices' %}" class="btn btn-success">Geräte</a>
               </div>
             </div>
@@ -59,9 +59,8 @@
                 {% else %}
                 <h5 class="mt-0">Keine nächste Gartenbewässerung geplant.</h5>
                 {% endif %}
-                <p class="card-text">Alles läuft nach Plan.</p>
+                <p class="card-text">Zeitpläne für die automatische Gartenbewässerung</p>
                 <a href="{% url 'plans' %}" class="btn btn-warning">Pläne</a>
-                <a href="{% url 'plan_create' %}" class="btn btn-secondary">Plan hinzufügen</a>
               </div>
             </div>
           
@@ -77,7 +76,7 @@
               <img src="{% static 'webapp/img/icons/bucket.svg' %}" width="64" class="mr-3">
               <div class="media-body">
                 <h5 class="mt-0">{{ water_amount|stringformat:"d" }} Liter </h5>
-                <p class="card-text">Wasserverbauch der letzten 7 Tage.</p>
+                <p class="card-text">Wasserverbauch der letzten 7 Tage</p>
                 <a href="{% url 'statistics' %}" class="btn btn-primary">Statistiken</a>
               </div>
             </div>
@@ -89,7 +88,7 @@
               <img src="{% static 'webapp/img/icons/weather.svg' %}" width="64" class="mr-3">
               <div class="media-body">
                 <h5 class="mt-0">Wetter</h5>
-                <p class="card-text">Die nächsten Tage wird es sonnig.</p>
+                <p class="card-text">Erhalte das Wetter für deinen Standort</p>
                 <a href="{% url 'weather' %}" class="btn btn-primary">Wetter</a>
               </div>
             </div>
