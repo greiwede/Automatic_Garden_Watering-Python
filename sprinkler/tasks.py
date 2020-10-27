@@ -85,7 +85,7 @@ def aut_irrigation():
                 # Sprengzeit > 0 bei mind. 1 Ventil?
                 if valve_list_sort.first().watering_time > 0:
                     file = open("auto_irrigation_log.txt", "a")
-                    file.write("      Es existiert ein Ventil mit einer Sprengzeit groesser als \n")
+                    file.write("      Es existiert ein Ventil mit einer Sprengzeit groesser als 0\n")
                     file.close()
                     # Schleife - Ventile der jeweiligen Pumpe
                     for valve in valve_list_sort:
@@ -101,7 +101,7 @@ def aut_irrigation():
                             file.write("\n")
                             file.close()
                             if time_allowed_timedelta(automatic_plan, valve.watering_time):
-                                if valve.curr_active:
+                                if valve.curr_active is False:
                                     valve.activate()
                                     # rufe deaktiviere-Methode auf( ueber Celery)
                                     # diese wartet solange, bis das Ventil deaktiviert werden muss
@@ -191,8 +191,10 @@ def get_valve_area(valve):
         return 50
     elif 1100 <= flow_capacity_hours < 1500:
         return 70
-    elif 1500 <= flow_capacity_hours:
+    elif 1500 <= flow_capacity_hours < 2000:
         return 100
+    elif 2000 <= flow_capacity_hours:
+        return 150
     else:
         return 1
 
