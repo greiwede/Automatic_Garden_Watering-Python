@@ -30,29 +30,30 @@ def aut_irrigation():
     file.write("Die Funktion der automatisierten Bewaesserung wird aufgerufen \n")
     file.close()
     automatic_plan = get_activ_automatic_plan()
+    # automatischer Plan aktiv?
     if automatic_plan is not None:
         file = open("test.txt", "a")
         file.write(" Es ist ein automatisierter Plan aktiv \n")
         file.close()
-        # ist Sprengzeit erlaubt
+        # Zeitraum zum Sprengen erlaubt?
         if time_allowed():  # Abfrage an Model
             file = open("test.txt", "a")
             file.write("  Der aktuelle Zeitraum ist erlaubt  \n")
             file.close()
-            # mit Bodensensor
+            # mind. 1 Bodensensor aktiv?
             if is_sensor_activ(automatic_plan):
                 file = open("test.txt", "a")
                 file.write("   Es handelt sich um eine automatisierte Bewaesserung mit Sensor \n")
                 file.close()
                 # alle Sensoren aus Model abrufen
                 sensor_list = get_sensor_list()
-                # Schleife - alle Sensoren durchgehen
+                # Schleife - Mind. 1 unbearbeiteter Sensor?
                 for sensor in sensor_list:
-                    # Methode zur Wassermengenberechnung für den jeweiligen Sensor aufrufen
+                    # Rufe Methode zur Sprengzeitberechnung inkl Sensor auf
                     wateramount = calculate_water_amount_sensor(sensor)
                     # Alle Ventile, die dem entsprechenden Sensor zugeornet sind in ventil_list speichern
                     valves_list = get_valve_sensor_list(sensor)
-                    # jeden Ventil die Wassermenge zuweisen
+                    # Speichere pro Ventil die berechnete Wassermenge
                     for valve in valves_list:
                         amount_sprinkler = Sprinkler.objects.filter(valve_fk=valve).count()
                         valve_time = (wateramount * amount_sprinkler) / get_valve_flow_capacity(
@@ -63,7 +64,7 @@ def aut_irrigation():
                 file.write("   Es handelt sich um eine automatisierte Bewaesserung mit dem Wetterzaehler \n")
                 file.close()
                 valve_list = get_valve_list(automatic_plan)
-                # Schleife - alle Ventile durchgehen
+                # Schleife - Mind. 1 unbearbeiteter Ventil-Zaehler?
                 for valve in valve_list:
                     # Addiere Wetterzaehler zu jeden Ventilzaehler
                     add_weathercounter_to_valve_counter(valve)
@@ -76,18 +77,19 @@ def aut_irrigation():
                     file.write("\n")
                     file.close()
                 WeatherCounter.objects.last().reset_weather_counter()
+                # Rufe Methode zur Sprengzeitberechnung ohne Sensor auf
                 calculate_water_amount_valve()
-            # Loop Pumpe
+            # Schleife - Alle Pumpen abgearbeitet?
             pump_list = get_pump_list(automatic_plan)
             for pump in pump_list:
                 # Liste aller Ventile einer Pumpe nach (watering_time absteigend sortiert)
                 valve_list_sort = get_valve_pump_list(automatic_plan, pump).order_by('-watering_time')
-                # Wassermenge > 0 bei mindestens einem Ventil?
+                # Sprengzeit > 0 bei mind. 1 Ventil?
                 if valve_list_sort.first().watering_time > 0:
                     file = open("test.txt", "a")
                     file.write("      Es existiert ein Ventil mit einer Sprengzeit groesser als \n")
                     file.close()
-                    # Loop Ventile der jeweiligen Pumpe
+                    # Schleife - Ventile der jeweiligen Pumpe
                     for valve in valve_list_sort:
                         # Pumpe ausgelastet oder keine Wassermenge > 0?
                         if get_pump_workload(pump) + get_valve_flow_capacity(
@@ -100,7 +102,7 @@ def aut_irrigation():
                             file.write(" Minuten angeschaltet")
                             file.write("\n")
                             file.close()
-                            # starte bestimmtes Ventil
+                            # Schalte Ventil ein
                             ##########
                             # Sprengzeit während der gesamten Sprengdauer erlaubt? ergänzen
                             ##########
