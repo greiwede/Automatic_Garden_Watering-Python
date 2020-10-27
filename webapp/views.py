@@ -165,7 +165,6 @@ def device_start(request, device_type, device_id):
     elif device_type == 3:
         valve = Valve.objects.get(id=device_id)
         valve.activate() # Activation method
-        set_valve(str(device_id), "ON")
         print('Ventil mit der ID ', device_id, ' wurde gestartet.')
         return redirect('/devices/?device=Ventil')
     # Redirects to the devices page.
@@ -184,7 +183,6 @@ def device_stop(request, device_type, device_id):
     elif device_type == 3:
         valve = Valve.objects.get(id=device_id)
         valve.deactivate()
-        set_valve(str(device_id), "OFF")
         print('Ventil mit der ID ', device_id, ' wurde gestoppt.')
         return redirect('/devices/?device=Ventil')
 
@@ -450,7 +448,7 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
         for ws in ws_month:
             args['water_month_' + str(i)] += ws.get_water_amount()
     
-    args['watering_statistics'] = WateringStatistic.objects.all()
+    args['watering_statistics'] = objects.filter(start_time__gte=datetime.now()-timedelta(days=14))
     
     return TemplateResponse(request, "statistics.html", args)
 
