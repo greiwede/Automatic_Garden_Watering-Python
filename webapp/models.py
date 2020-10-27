@@ -278,15 +278,15 @@ class WeatherCounter(models.Model):
     def get_temperature(self):
         temperature_counter = 0 # self.get_current_temperature(marida_db_connection) # Abfrage an Model
         if 0 <= temperature_counter <= 10:
-            return 0
+            return 1
         elif 10 < temperature_counter <= 15:
-            return 1 / 8
+            return 3 / 2
         elif 15 < temperature_counter <= 20:
-            return 1 / 6
+            return 2
         elif 20 < temperature_counter <= 25:
-            return 1 / 3
+            return 5 / 2
         elif temperature_counter >= 25:
-            return 1 / 2
+            return 3
         else:
             return 0
 
