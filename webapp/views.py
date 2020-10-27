@@ -1,3 +1,14 @@
+"""
+#===================================================#
+#                   views.py                        #
+#===================================================#
+#  This file contains functions that make the       #
+#  webapp work.                                     #
+#===================================================#
+# Developers: Malte Seelhöfer, Lennart von Werder   #
+#===================================================#
+"""
+
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render

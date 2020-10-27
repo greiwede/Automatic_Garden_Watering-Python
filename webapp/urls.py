@@ -1,3 +1,14 @@
+"""
+#===================================================#
+#                   views.py                        #
+#===================================================#
+#  This file contains all the routes for the web    #
+#  application.                                     #
+#===================================================#
+# Developers: Malte Seelhöfer, Lennart von Werder   #
+#===================================================#
+"""
+
 from django.urls import path
 from django.contrib import admin
 from . import views
