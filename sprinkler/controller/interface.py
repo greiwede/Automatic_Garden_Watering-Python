@@ -1,3 +1,16 @@
+"""
+#===================================================#
+#                   Interface.py                    #
+#===================================================#
+#  Dieses Skript bildet das Interface zwischen dem  #
+#  Django-Framework und der Hardwareansteuerung     #
+#  des Raspberry Pi's !                             #
+#===================================================#
+# Entwickler : Fabian Völker                        #
+#===================================================#
+"""
+
+
 import os
 import subprocess
 import time
@@ -5,25 +18,34 @@ import sys
 sys.path.append("..")
 from webapp.models import *
 
-# Pfad Problem!
+
+# Der set_pump Befehl schickt dem Mikrocontroller den Befehl die jeweilige
+# Pumpe entweder ein- oder auszuschalten
 
 def set_pump(pump_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\set_pump.py"
-        subprocess.call(['python', path, pump_id, action])
+        path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_pump.py"
+        subprocess.call(['python2.7', path, pump_id, action])
         print("Pumpe: " + pump_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_pump ERROR")  # Fehlermeldung
 
 
+# Der set_valve Befehl schickt dem Mikrocontroller den Befehl das jeweilige
+# Ventil entweder zu öffnen oder zu schließen
+
 def set_valve(valve_id, action):
     if action == "ON" or action == "OFF":
-        path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\set_valve.py"
-        subprocess.call(['python', path, valve_id, action])
+        path = os.path.abspath(os.curdir) + "/sprinkler/controller/set_valve.py"
+        subprocess.call(['python2.7', path, valve_id, action])
         print("Ventil: " + valve_id + " --> " + action)  # Ausgabe in Konsole
     else:
         print("set_valve ERROR")  # Fehlermeldung
 
+
+# Der transfer_plan Befehl schickt dem Mikrocontroller den gesamten aktivierten
+# Zeitplan. Dieser wird dann vom Mikrocontroller gespeichert, damit dieser auch
+# ohne Weboberfläche und Raspberry funktionsfähig den Plan abspielen kann
 
 def transfer_plan(plan):
     # Get necessary objects
@@ -35,7 +57,7 @@ def transfer_plan(plan):
     schedules = plan.get_related_schedules()
 
     # Create string
-    header_str = "NEWPLAN"
+    header_str = "\nNEWPLAN"
 
     i = 0
     pumpen_str = "PUMPS:"
@@ -77,30 +99,41 @@ def transfer_plan(plan):
 
     print("Message to controller:\n" + message_str)
 
-    path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\transfer_plan.py"
+    path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
 
-    subprocess.call(['python', path, message_str])
+    subprocess.call(['python2.7', path, message_str])
 
+
+# Der delete_plan Befehl schickt dem Mikrocontroller den Befehl den zuvor
+# gesendeten und eingespeicherten Plan zu löschen, um für einen neuen Plan
+# bereit zu sein
 
 def delete_plan():
     header_str = "DELETEPLAN"
     message_str = header_str
     print("Message to controller:\n" + message_str)
 
-    path = os.path.abspath(os.curdir) + "\\sprinkler\\controller\\transfer_plan.py"
+    path = os.path.abspath(os.curdir) + "/sprinkler/controller/transfer_plan.py"
 
-    subprocess.call(['python', path, message_str])
+    subprocess.call(['python2.7', path, message_str])
 
 
+# Diese Methode soll in Zukunft die Messwerte des Feuchtigkeitssensors entgegennehmen
+# und mit in die automatisierte Bewässerung einbeziehen
 
 def get_humidity(sensor_id):
     pass
 
 
+# Diese Methode soll den Status des Mikrocontrollers abfragen können
+
 def get_status():
     # return status des Microcontrollers
     pass
 
+
+# Nachdem eine Anfrage an den Mikrocontroller gesendet wurde, wird mit
+# dieser Methode gewartet bis eine Antwort im System erscheint
 
 def wait_answer():
     # received_data = uart.read()
@@ -110,6 +143,9 @@ def wait_answer():
     # return received_data
     pass
 
+
+# Nachdem eine Anfrage an den Mikrocontroller gesendet wurde, wird mit
+# dieser Methode überprüft, ob alle Daten angekommen sind.
 
 def check_sending(received_data):
     # if received_data== b'OK\r':
