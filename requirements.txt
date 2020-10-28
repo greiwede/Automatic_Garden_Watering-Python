@@ -1,9 +1,6 @@
 # Python-Framework
 django
 
-# Install Django Crontab Module
-django-crontab
-
 # Localization Module
 geopy
 

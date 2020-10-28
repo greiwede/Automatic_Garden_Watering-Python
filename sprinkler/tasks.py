@@ -364,9 +364,9 @@ def read_weather():
 
     # Get Location and API Key - if not exist raise exception
     try:
-        user_settings = UserSettings.objects.latest('id')
+        user_settings = UserSettings.objects.last()
         owm_api_key = user_settings.owm_api_key
-        loc = Location.objects.latest()
+        loc = Location.objects.last()
     except:
         print("Standortdaten oder Koordinaten unzureichend gepflegt")
         return -1
