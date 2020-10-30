@@ -393,18 +393,22 @@ def read_weather():
         rain = 0
 
     # Get correct reference_time
-    if(platform.system()=='Linux'):
+    if platform.system() == 'Linux':
         reference_time = weather.reference_time('iso')
-    elif(platform.system()=='Windows'):
+    elif platform.system() == 'Windows':
         reference_time = weather.reference_time('iso') + "00" # Needed under Windows OS
+    else:
+        print("Weather time could not be identified. You are using an unsupported platform.")
     reference_time_obj = datetime.datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
     reference_time_obj = reference_time_obj + timedelta(hours=int(loc.utc_offset))
 
     # Get correct reception_time
-    if(platform.system()=='Linux'):
+    if platform.system() == 'Linux':
         reception_time = observer.reception_time('iso')
-    elif(platform.system()=='Windows'):
+    elif platform.system() == 'Windows':
         reception_time = observer.reception_time('iso') + "00" # Needed under Windows OS
+    else:
+        print("Weather time could not be identified. You are using an unsupported platform.")
     reception_time_obj = datetime.datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
     reception_time_obj = reception_time_obj + timedelta(hours=int(loc.utc_offset))
 
@@ -414,6 +418,7 @@ def read_weather():
     owm_id = weather.weather_code
     weather_status_fk = WeatherStatus.objects.get(owm_id__exact=owm_id)
 
+    # Try to edit an existing model - if does not exist -> create a new one
     try:
         w = WeatherData.objects.get(location_fk__exact=loc, reference_time=reference_time_obj)
         w.humidity = humidity
