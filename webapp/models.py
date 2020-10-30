@@ -606,7 +606,7 @@ class ScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Schedule
-        fields = ['is_allow', 'is_deny', 'plan', 'monday', 'tuesday', 'wednesday', 'thursday',
+        fields = ['is_allow', 'is_deny', 'monday', 'tuesday', 'wednesday', 'thursday',
                   'friday', 'saturday', 'sunday', 'time_start', 'time_stop']
         labels = {
         "is_allow": "Zeitplan für erlaubten Zeitraum",

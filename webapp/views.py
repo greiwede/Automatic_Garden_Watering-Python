@@ -488,11 +488,19 @@ def schedule_edit(request, plan_id, schedule_id):
     if request.method == 'POST':
         schedule = Schedule.objects.get(pk=schedule_id)
         schedule_form = ScheduleForm(request.POST, instance=schedule)
-        schedule_form.save()
-        return redirect('plan_edit', plan_id=plan_id)
-    else:
-        schedule = Schedule.objects.get(pk=schedule_id)
-        args['form'] = ScheduleForm(instance=schedule)
+
+        if schedule_form.is_valid():
+            time_start = schedule_form.cleaned_data['time_start']
+            time_stop = schedule_form.cleaned_data['time_stop']
+
+            if time_start >= time_stop:
+                args['error'] = "Bitte prüfe deine Einaben. Die Startzeit darf nicht nach der Endzeit liegen."
+            else:
+                schedule_form.save()
+                return redirect('plan_edit', plan_id=plan_id)
+
+    schedule = Schedule.objects.get(pk=schedule_id)
+    args['form'] = ScheduleForm(instance=schedule)
 
     return TemplateResponse(request, "schedule_edit.html", args)
 
