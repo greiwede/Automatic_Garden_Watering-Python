@@ -47,7 +47,7 @@ How to setup a working Sprinkler application.
 
 ### Windows
 
-Make sure to use the Windows Command Prompt, PowerShell is not supported. We also want to state that under Windows Celery is not supported which means that all background jobs like automatic/manual watering as well as periodic weather updates will not work.
+Make sure to use the Windows Command Prompt, PowerShell is not supported. We also want to state that under Windows, Celery is not supported which means that all background jobs like automatic/manual watering as well as periodic weather updates will not work.
 
 1. Install Python: https://www.python.org/downloads/
 2. Create Virtual Environment

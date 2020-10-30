@@ -359,7 +359,12 @@ def get_activ_automatic_plan():
 
 @shared_task
 def read_weather():
-    """Entwickler: Malte Seelhoefer"""
+    """
+    Developer: Malte Seelhoefer
+    
+    This function gets the weather from the OpenWeatherMap API and processes it into a model.
+    After that the weather counter is set accordingly.
+    """
     args = {}
 
     # Get Location and API Key - if not exist raise exception
