@@ -17,14 +17,14 @@ How to setup a working Sprinkler application.
 1. Install Python3.*, RabbitMQ and libATLAS for Celery
 <pre>pi@raspberry:~ $ <b>sudo apt-get install python3 python3-venv python2.7 curl git rabbitmq-server libatlas-base-dev</b></pre>
 2. Enable serial communication of the Raspberry Pi
-2.1. Enter the following command
-<pre>pi@raspberry:~ $ <b>sudo raspi-config</b></pre>
-2.2. Use the arrow keys to get to option 5 Interfacing Options and hit Enter
-2.3. In the next menu navigate to P6 Serial and hit Enter again
-2.4. Accept the next question by hitting Enter when Yes is selected
-2.5. Confirm the dialog by hitting Enter on the OK button and navigate to the Finish button on the next menu and hit Enter.
-2.6. Reboot the Raspberry Pi
-<pre>pi@raspberry:~ $ <b>sudo reboot</b></pre>
+    1. Enter the following command
+    <pre>pi@raspberry:~ $ <b>sudo raspi-config</b></pre>
+    2. Use the arrow keys to get to option 5 Interfacing Options and hit Enter
+    3. In the next menu navigate to P6 Serial and hit Enter again
+    4. Accept the next question by hitting Enter when Yes is selected
+    5. Confirm the dialog by hitting Enter on the OK button and navigate to the Finish button on the next menu and hit Enter.
+    6. Reboot the Raspberry Pi
+    <pre>pi@raspberry:~ $ <b>sudo reboot</b></pre>
 3. Create Virtual Environment
 <pre>pi@raspberry:~ $ <b>python3 -m venv sprinklerenv</b></pre>
 4. Change Directory
@@ -38,12 +38,16 @@ How to setup a working Sprinkler application.
 8. Install all required Python modules
 <pre>pi@raspberry:~ $ <b>pip install -r requirements.txt</b></pre>
 9. Start Server
-<pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
+    <li>Only available at localhost (http://localhost:8000/ or http://127.0.0.1:8000/)
+    <pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
+    <li>Available at localhost and externally at IP of the network device (http://localhost:8000/ or http://127.0.0.1:8000/ or http://{IP-Address}:8000/)
+        1. Add the devices IP address to the `ALLOWED_HOSTS` list in `sprinkler/settings.py`.
+        2. <pre>pi@raspberry:~ $ <b>python manage.py runserver 0.0.0.0:8000</b></pre>
 10. Enjoy!
 
 ### Windows
 
-Make sure to use the Windows Command Prompt, PowerShell is not supported.
+Make sure to use the Windows Command Prompt, PowerShell is not supported. We also want to state that under Windows Celery is not supported which means that all background jobs like automatic/manual watering as well as periodic weather updates will not work.
 
 1. Install Python: https://www.python.org/downloads/
 2. Create Virtual Environment
