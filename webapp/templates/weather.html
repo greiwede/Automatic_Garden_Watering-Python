@@ -30,7 +30,7 @@
       <th scope="col">Status</th>
       <th scope="col"></th>
       <th scope="col">Temperatur</th>
-      <th scope="col">Niederschlag</th>
+      <th scope="col">Niederschlag (pro Stunde)</th>
       <th scope="col">Luftfeuchtigkeit</th>
       <th scope="col">Wind</th>
     </tr>
@@ -50,7 +50,7 @@
           {% endif %}
       </td>
       <td>{{ weather.temperature }}°C</td>
-      <td>{{ weather.rain }} mm</td>
+      <td>{{ weather.rain }} mm/m²</td>
       <td>{{ weather.humidity }} %</td>
       <td>{{ weather.wind }} km/Std.</td>
       </tr>
