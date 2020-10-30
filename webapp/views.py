@@ -28,6 +28,7 @@ from geopy.geocoders import Nominatim
 from pyowm.owm import OWM
 from datetime import datetime, timedelta
 from timezonefinder import TimezoneFinder
+import platform
 from pytz import timezone, utc
 
 

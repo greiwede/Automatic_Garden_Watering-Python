@@ -388,12 +388,18 @@ def read_weather():
         rain = 0
 
     # -- Get correct reference_time
-    reference_time = weather.reference_time('iso')# + "00" # Needed under Windows OS
+    if(platform.system()=='Linux'):
+        reference_time = weather.reference_time('iso')
+    elif(platform.system()=='Windows'):
+        reference_time = weather.reference_time('iso') + "00" # Needed under Windows OS
     reference_time_obj = datetime.datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
     reference_time_obj = reference_time_obj + timedelta(hours=int(loc.utc_offset))
 
     # # -- Get correct reception_time
-    reception_time = observer.reception_time('iso')# + "00" # Needed under Windows OS
+    if(platform.system()=='Linux'):
+        reception_time = observer.reception_time('iso')
+    elif(platform.system()=='Windows'):
+        reception_time = observer.reception_time('iso') + "00" # Needed under Windows OS
     reception_time_obj = datetime.datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
     reception_time_obj = reception_time_obj + timedelta(hours=int(loc.utc_offset))
 
