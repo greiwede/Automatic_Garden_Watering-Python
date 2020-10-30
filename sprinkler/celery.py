@@ -26,13 +26,16 @@ app = Celery('sprinkler')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 app.conf.beat_schedule = {
-    'automatic_irrigation':{
-        'task': 'sprinkler.tasks.aut_irrigation',
-        'schedule': 15
-        #'schedule': crontab(minute='*/15')
+    'manual_irrigation':{
+        'task': 'sprinkler.tasks.manual_irrigation',
+        'schedule': crontab(minute='*/1')
     },
     'read_weather':{
         'task': 'sprinkler.tasks.read_weather',
+        'schedule': crontab(minute='*/15')
+    },
+    'automatic_irrigation':{
+        'task': 'sprinkler.tasks.aut_irrigation',
         'schedule': crontab(minute='*/15')
     }
 }

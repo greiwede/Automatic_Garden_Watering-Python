@@ -34,7 +34,7 @@
      
      <thead>
         <tr>
-          <th scope="col">Erlaubte Wochentage</th>
+          <th scope="col">gewählte Wochentage</th>
           <th scope="col">Start</th>
           <th scope="col">Stop</th>
           <th scope="col"></th>
@@ -46,7 +46,7 @@
         <tr>
           <td>
             {% if schedule.is_allow %}
-              {% with display_type="info" %}
+              {% with display_type="success" %}
                 {% if 0 in schedule.weekdays %}
                 <span class="badge badge-{{ display_type }}">Mo</span>
                 {% else %}
@@ -87,7 +87,7 @@
           <td><span class="badge badge-{{ display_type }}">{{ schedule.time_stop }}</span></td>
               {% endwith %}
             {% elif schedule.is_deny %}
-              {% with display_type="warning" %}
+              {% with display_type="danger" %}
                 {% if 0 in schedule.weekdays %}
                 <span class="badge badge-{{ display_type }}">Mo</span>
                 {% else %}

@@ -387,7 +387,7 @@ def read_weather():
     else:
         rain = 0
 
-    # -- Get correct reference_time
+    # Get correct reference_time
     if(platform.system()=='Linux'):
         reference_time = weather.reference_time('iso')
     elif(platform.system()=='Windows'):
@@ -395,7 +395,7 @@ def read_weather():
     reference_time_obj = datetime.datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
     reference_time_obj = reference_time_obj + timedelta(hours=int(loc.utc_offset))
 
-    # # -- Get correct reception_time
+    # Get correct reception_time
     if(platform.system()=='Linux'):
         reception_time = observer.reception_time('iso')
     elif(platform.system()=='Windows'):
@@ -424,7 +424,7 @@ def read_weather():
                     rain=rain, temperature=temperature, wind=wind, last_update_time=reference_time_obj,
                     weather_status_fk=weather_status_fk)
 
-    # Wettterzaehler updaten
+    # Update weather counter
     try:
         wc = WeatherCounter.objects.last()
         wc.modify_weather_counter()
@@ -433,3 +433,19 @@ def read_weather():
         wc = WeatherCounter.objects.create(weather_counter=0)
         wc.modify_weather_counter()
         wc.save()
+
+
+@shared_task
+def manual_irrigation():
+    """First gets an active plan if there is one. Then if it is watering time it opens the associated valves."""
+    try:
+        active_plan = Plan.objects.get(is_active_plan=True)
+    except:
+        print("No active plan found.")
+    
+    if active_plan.is_allow_time():
+        valves = active_plan.valve.all()
+        for valve in valves:
+            valve.activate()
+    else:
+        print("No watering time currently.")
