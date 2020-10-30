@@ -495,12 +495,13 @@ def schedule_edit(request, plan_id, schedule_id):
 
             if time_start >= time_stop:
                 args['error'] = "Bitte prüfe deine Einaben. Die Startzeit darf nicht nach der Endzeit liegen."
+                args['form'] = schedule_form
             else:
                 schedule_form.save()
                 return redirect('plan_edit', plan_id=plan_id)
-
-    schedule = Schedule.objects.get(pk=schedule_id)
-    args['form'] = ScheduleForm(instance=schedule)
+    else:
+        schedule = Schedule.objects.get(pk=schedule_id)
+        args['form'] = ScheduleForm(instance=schedule)
 
     return TemplateResponse(request, "schedule_edit.html", args)
 
