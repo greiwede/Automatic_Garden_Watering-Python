@@ -332,7 +332,7 @@ class Plan(CommonInfo):
     description = models.CharField(max_length=3000)
 
     valve_threshold = models.IntegerField(default=100)
-    moisture_threshold = models.DecimalField(max_digits=5, decimal_places=2, default=100)
+    moisture_threshold = models.DecimalField(max_digits=5, decimal_places=2, default=55)
 
     automation_rain = models.BooleanField(default=False)
     timespace_rain_forecast = models.IntegerField(default=24) # Standardwert 24h für forecast beachten
