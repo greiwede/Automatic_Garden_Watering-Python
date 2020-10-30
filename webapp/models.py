@@ -483,7 +483,12 @@ class Schedule(models.Model):
 
     def get_next_date_time(self, weekdays, dt):
         """This is a helper function which returns the next datetime at which a time window in this schedule is met."""
-        now_date_time = timezone.now()
+        try:
+            loc = Location.objects.last()
+            utc_offset = loc.utc_offset
+        except:
+            utc_offset = 0
+        now_date_time = timezone.now() + timedelta(hours=utc_offset)
         weekday = now_date_time.weekday()
 
         for i in range(0, 8):
@@ -499,7 +504,7 @@ class Schedule(models.Model):
 
                 date_time_str = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
                 date_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
-                date_time = pytz.utc.localize(date_time)
+                date_time = pytz.utc.localize(date_time) + timedelta(hours=utc_offset)
 
                 if date_time > now_date_time:
                     return date_time
