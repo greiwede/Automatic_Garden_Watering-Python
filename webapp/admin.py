@@ -20,7 +20,7 @@ admin.site.register(Location)
 
 admin.site.register(WeatherData)
 
-admin.site.register(UserSettings)
+admin.site.register(Settings)
 
 admin.site.register(WeatherStatus)
 

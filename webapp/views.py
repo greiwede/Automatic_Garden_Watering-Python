@@ -645,30 +645,30 @@ def settings(request):
     
     # API-Key Settings
     if request.POST.get('owmAPIKey') == None:
-        user = User.objects.get(username__exact=request.user.username)
-        if hasattr(user, 'usersettings'):
-            args['filter_owm_api_key'] = user.usersettings.owm_api_key
-        else:
+        try:
+            settings = Settings.objects.last()
+            args['filter_owm_api_key'] = settings.owm_api_key
+        except:
             args['filter_owm_api_key'] = ''
 
     elif request.POST.get('owmAPIKey') == '':
-        user = User.objects.get(username__exact=request.user.username)
-        if hasattr(user, 'usersettings'):
-            user_settings = user.usersettings
-            user_settings.owm_api_key = ''
-            user_settings.save() 
+        try:
+            settings = Settings.objects.last()
+            settings.owm_api_key = ''
+            settings.save()
+        except:
+            pass
         args['filter_owm_api_key'] = ''
     else:
         try:
-            user = User.objects.get(username__exact=request.user.username)
-            if hasattr(user, 'usersettings'):
-                user_settings = user.usersettings
-                user_settings.owm_api_key = request.POST.get('owmAPIKey')
-                user_settings.save() 
-            else:
-                user_settings = UserSettings.objects.create(user=user, owm_api_key=request.POST.get('owmAPIKey'))
+            try:
+                settings = Settings.objects.last()
+                settings.owm_api_key = request.POST.get('owmAPIKey')
+                settings.save() 
+            except:
+                settings = Settings.objects.create(owm_api_key=request.POST.get('owmAPIKey'))
                 user.save()
-            args['filter_owm_api_key'] = user_settings.owm_api_key
+                args['filter_owm_api_key'] = settings.owm_api_key
         except:
             args['filter_owm_api_key'] = ''
 

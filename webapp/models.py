@@ -690,9 +690,8 @@ class WeatherData(models.Model):
         super().save(*args, **kwargs)
 
 
-class UserSettings(models.Model):
+class Settings(models.Model):
     """This is used to store user-based data."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     owm_api_key = models.CharField(max_length=32, blank=True)
 
 
