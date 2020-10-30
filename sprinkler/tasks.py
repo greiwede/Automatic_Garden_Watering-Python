@@ -455,4 +455,6 @@ def manual_irrigation():
         for valve in valves:
             valve.activate()
     else:
-        print("No watering time currently.")
+        valves = active_plan.valve.all()
+        for valve in valves:
+            valve.deactivate()
