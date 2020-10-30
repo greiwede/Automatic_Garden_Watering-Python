@@ -483,7 +483,7 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
         ws_month = ws_year.filter(start_time__month=i)
         args['water_month_' + str(i)] = 0
         for ws in ws_month:
-            args['water_month_' + str(i)] += ws.get_water_amount()
+            args['water_month_' + str(i)] += float(ws.get_water_amount())
     
     args['watering_statistics'] = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=14))
     
