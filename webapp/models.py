@@ -1,11 +1,11 @@
 """
-#===================================================================#
-#                          models.py                                #
-#===================================================================#
-#  This file contains all the database models and relations         #
-#===================================================================#
-# Developers: Malte Seelhoefer, Lennart von Werder, Dennis Greiwede #
-#===================================================================#
+#=================================================================#
+#                          models.py                              #
+#=================================================================#
+#  This file contains all the database models and relations       #
+#=================================================================#
+# Developers: Malte Seelhoefer, Lennart von Werder, Dennis Greiwe #
+#=================================================================#
 """
 
 # Django standard imports
@@ -409,10 +409,8 @@ class Plan(CommonInfo):
 
     def is_automated_plan(self):
         if self.automation_rain or self.automation_sensor or self.automation_temperature:
-            print("Automated plan")
             return True
         else:
-            print("Manual plan")
             return False
 
 
@@ -513,9 +511,9 @@ class Schedule(models.Model):
 
     def is_allowed_time(self):
         if self.plan.is_automated_plan():
-            self.is_allowed_time_automated()
+            return self.is_allowed_time_automated()
         else:
-            self.is_allowed_time_manual()
+            return self.is_allowed_time_manual()
 
     def is_allowed_time_automated(self):
         return not self.is_denied_time_automated()
@@ -523,9 +521,7 @@ class Schedule(models.Model):
     def is_allowed_time_manual(self):
         if self.is_allow:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
-            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
-            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
@@ -540,16 +536,14 @@ class Schedule(models.Model):
 
     def is_denied_time(self):
         if self.plan.is_automated_plan():
-            self.is_denied_time_automated()
+            return self.is_denied_time_automated()
         else:
-            self.is_denied_time_manual()
+            return self.is_denied_time_manual()
 
     def is_denied_time_automated(self):
         if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
-            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
-            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
@@ -565,9 +559,7 @@ class Schedule(models.Model):
     def is_denied_time_manual(self):
         if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
-            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
-            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
