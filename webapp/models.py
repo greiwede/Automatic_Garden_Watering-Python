@@ -438,7 +438,7 @@ class PlanForm(forms.ModelForm):
         'valve_threshold': "Aktivierungsschwelle des Ventils", 
         'moisture_threshold': "Aktivierungsschwelle des Feuchtigkeitssensors", 
         'automation_rain': "Automatisierung durch Regendaten", 
-        'timespace_rain_forecast': "Reichweite in Tagen der Regengestützten Automatisierung", 
+        'timespace_rain_forecast': "Vorausschauend betrachtete Anzahl an Tagen bei der Wettervorhersage für die regengestützten Automatisierung", 
         'automation_sensor': "Auswahl des Sensors", 
         'automation_temperature': "Automatisierung durch Temperatur", 
         'valve': "Ventile (Mehrere durch STRG+Klick auswählbar)"
