@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 # Standard modules
-import datetime
+from datetime import datetime, timedelta
 import sys
 sys.path.append("..")
 
@@ -176,7 +176,12 @@ class Valve(Device):
         if self.curr_active == False:
             self.pump_fk.add_to_current_workload(self.get_attached_flow_capacity())
             self.curr_active = True
-            self.activate_date_time = timezone.now()
+            try:
+                loc = Location.objects.last()
+                utc_offset = loc.utc_offset
+            except:
+                utc_offset = 0
+            self.activate_date_time = timezone.now() + timedelta(hours=utc_offset)
             self.save()
             set_valve(str(self.contr_id), "ON")
     
@@ -185,7 +190,12 @@ class Valve(Device):
         if self.curr_active == True:
             self.pump_fk.subtract_from_current_workload(self.get_attached_flow_capacity())
             self.curr_active = False
-            time_difference = timezone.now() - self.activate_date_time
+            try:
+                loc = Location.objects.last()
+                utc_offset = loc.utc_offset
+            except:
+                utc_offset = 0
+            time_difference = timezone.now() + timedelta(hours=utc_offset) - self.activate_date_time
             WateringStatistic.objects.create(start_time=self.activate_date_time, valve_fk=self, duration_seconds=time_difference.total_seconds())
             self.activate_date_time = None
             self.save()
@@ -473,12 +483,12 @@ class Schedule(models.Model):
 
     def get_next_date_time(self, weekdays, dt):
         """This is a helper function which returns the next datetime at which a time window in this schedule is met."""
-        weekday = datetime.datetime.now().weekday()
+        now_date_time = timezone.now()
+        weekday = now_date_time.weekday()
 
         for i in range(0, 8):
             if weekday in weekdays:
-                now_date_time = datetime.datetime.now()
-                temp_date_time = now_date_time + datetime.timedelta(days=i)
+                temp_date_time = now_date_time + timedelta(days=i)
 
                 day = str("{:02d}".format(temp_date_time.day))
                 month = str("{:02d}".format(temp_date_time.month))
@@ -488,7 +498,8 @@ class Schedule(models.Model):
                 second = str("{:02d}".format(dt.second))
 
                 date_time_str = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
-                date_time = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
+                date_time = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
+                date_time = pytz.utc.localize(date_time)
 
                 if date_time > now_date_time:
                     return date_time
@@ -678,7 +689,7 @@ class WeatherData(models.Model):
     weather_status_fk = models.ForeignKey(WeatherStatus, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        self.last_update_time = datetime.datetime.now()
+        self.last_update_time = timezone.now()
         super().save(*args, **kwargs)
 
 

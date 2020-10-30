@@ -251,7 +251,7 @@ def time_allowed_timedelta(plan, time):
     """Ermittelt aus der Datenbank, ob wahrend des Ablaufs der uebergeben Zeit die Sperrezeit zum Sprengen erreicht wird"""
     next_denied_time = plan.get_next_denied_start_date_time()
     if(next_denied_time is not None):
-        time_valve_deactivate = datetime.datetime.now() + timedelta(minutes=int(time))
+        time_valve_deactivate = timezone.now() + timedelta(minutes=int(time))
         if (next_denied_time > time_valve_deactivate):
             return True
         else:
@@ -399,7 +399,7 @@ def read_weather():
         reference_time = weather.reference_time('iso') + "00" # Needed under Windows OS
     else:
         print("Weather time could not be identified. You are using an unsupported platform.")
-    reference_time_obj = datetime.datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
+    reference_time_obj = datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S%z')
     reference_time_obj = reference_time_obj + timedelta(hours=int(loc.utc_offset))
 
     # Get correct reception_time
@@ -409,11 +409,8 @@ def read_weather():
         reception_time = observer.reception_time('iso') + "00" # Needed under Windows OS
     else:
         print("Weather time could not be identified. You are using an unsupported platform.")
-    reception_time_obj = datetime.datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
+    reception_time_obj = datetime.strptime(reception_time, '%Y-%m-%d %H:%M:%S%z')
     reception_time_obj = reception_time_obj + timedelta(hours=int(loc.utc_offset))
-
-    reference_time_obj = datetime.datetime.now()
-    reception_time_obj = datetime.datetime.now()
 
     owm_id = weather.weather_code
     weather_status_fk = WeatherStatus.objects.get(owm_id__exact=owm_id)

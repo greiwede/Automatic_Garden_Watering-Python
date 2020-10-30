@@ -18,6 +18,7 @@ from django.forms import inlineformset_factory
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
+from django.utils import timezone
 import sys
 sys.path.append("..")
 from .models import *
@@ -29,7 +30,7 @@ from pyowm.owm import OWM
 from datetime import datetime, timedelta
 from timezonefinder import TimezoneFinder
 import platform
-from pytz import timezone, utc
+from pytz import timezone as pytimezone, utc
 
 
 # Displays the index page. Redirects the user if signed in.
@@ -86,7 +87,7 @@ def dashboard(request):
         # No location available
         pass
 
-    hour = datetime.now().hour
+    hour = timezone.now().hour
 
     # Get greeting
     if ( hour >= 0 and hour < 6 ) or ( hour > 20 and hour <= 23 ):
@@ -115,7 +116,7 @@ def dashboard(request):
 
     # Get statistics data of water usage within the last 7 days
     args['water_amount'] = 0
-    ws_amount = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=7))
+    ws_amount = WateringStatistic.objects.filter(start_time__gte=timezone.now()-timedelta(days=7))
     for ws in ws_amount:
         args['water_amount'] += ws.get_water_amount()
 
@@ -514,7 +515,7 @@ def schedule_delete(request, plan_id, schedule_id):
 
 
 @login_required(login_url='/admin/login/')
-def statistics(request, year=int(datetime.now().strftime('%Y'))):
+def statistics(request, year=int(timezone.now().strftime('%Y'))):
     """Shows the statistics of a choosen year to the user."""
     args = {}
     args['year'] = year
@@ -529,7 +530,7 @@ def statistics(request, year=int(datetime.now().strftime('%Y'))):
         for ws in ws_month:
             args['water_month_' + str(i)] += float(ws.get_water_amount())
     
-    args['watering_statistics'] = WateringStatistic.objects.filter(start_time__gte=datetime.now()-timedelta(days=14))
+    args['watering_statistics'] = WateringStatistic.objects.filter(start_time__gte=timezone.now()-timedelta(days=14))
     
     return TemplateResponse(request, "statistics.html", args)
 
@@ -549,7 +550,7 @@ def weather(request):
     args['weathers'] = weathers
 
     # Get time of day
-    hour = datetime.now().hour
+    hour = timezone.now().hour
     if hour <= 8 or hour >= 21:
         args['daytime'] = 'n' # Night
     else:
@@ -595,7 +596,7 @@ def settings(request):
         # Get UTC offset of the location
         today = datetime.now()
         tf = TimezoneFinder()
-        tz_target = timezone(tf.certain_timezone_at(lat=lat, lng=lon))
+        tz_target = pytimezone(tf.certain_timezone_at(lat=lat, lng=lon))
         today_target = tz_target.localize(today)
         today_utc = utc.localize(today)
         loc.utc_offset = int((today_utc - today_target).total_seconds() / 3600)
