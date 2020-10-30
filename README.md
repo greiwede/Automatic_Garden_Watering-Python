@@ -38,9 +38,9 @@ How to setup a working Sprinkler application.
 8. Install all required Python modules
 <pre>pi@raspberry:~ $ <b>pip install -r requirements.txt</b></pre>
 9. Start Server
-    <li>Only available at localhost (http://localhost:8000/ or http://127.0.0.1:8000/)
+    - Only available at localhost (http://localhost:8000/ or http://127.0.0.1:8000/)
     <pre>pi@raspberry:~ $ <b>python manage.py runserver</b></pre>
-    <li>Available at localhost and externally at IP of the network device (http://localhost:8000/ or http://127.0.0.1:8000/ or http://{IP-Address}:8000/)
+    - Available at localhost and externally at IP of the network device (http://localhost:8000/ or http://127.0.0.1:8000/ or http://{IP-Address}:8000/)
         1. Add the devices IP address to the `ALLOWED_HOSTS` list in `sprinkler/settings.py`.
         2. <pre>pi@raspberry:~ $ <b>python manage.py runserver 0.0.0.0:8000</b></pre>
 10. Enjoy!
