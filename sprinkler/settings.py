@@ -27,7 +27,7 @@ SECRET_KEY = '-urxq)_lpb4ex4&4fb2y^a%c4tt8cm05r*+#)!wco4n3b+#__o'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.0.23", "192.168.0.101", "192.168.0.108", "sprinkler.slhfr.de", "sprinkler.lvw.me","192.168.2.117"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "sprinkler.slhfr.de", "sprinkler.lvw.me", "192.168.0.23", "192.168.0.101", "192.168.0.108", "192.168.2.117", "192.168.0.44"]
 
 
 # Application definition
