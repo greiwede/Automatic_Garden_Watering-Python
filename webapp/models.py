@@ -409,8 +409,10 @@ class Plan(CommonInfo):
 
     def is_automated_plan(self):
         if self.automation_rain or self.automation_sensor or self.automation_temperature:
+            print("Automated plan")
             return True
         else:
+            print("Manual plan")
             return False
 
 
@@ -521,7 +523,9 @@ class Schedule(models.Model):
     def is_allowed_time_manual(self):
         if self.is_allow:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
@@ -543,7 +547,9 @@ class Schedule(models.Model):
     def is_denied_time_automated(self):
         if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
@@ -559,7 +565,9 @@ class Schedule(models.Model):
     def is_denied_time_manual(self):
         if self.is_deny:
             next_start_date_time = self.get_next_date_time(self.get_weekdays(), self.time_start)
+            print(next_start_date_time)
             next_end_date_time = self.get_next_date_time(self.get_weekdays(), self.time_stop)
+            print(next_end_date_time)
             if next_start_date_time != None:
                 is_same_day = next_start_date_time <= next_end_date_time
             else:
@@ -586,13 +594,13 @@ class ScheduleForm(forms.ModelForm):
                     'onclick': functionName,
                 })
             elif Schedule._meta.get_field(field).get_internal_type() == 'TimeField':
+                self.fields[field].widget = forms.TimeInput(attrs={'type': 'time'})
                 self.fields[field].widget.attrs.update({    
                     'class': 'form-control',
-                    'type': 'time'
                 })
             else:
                 self.fields[field].widget.attrs.update({    
-                    'class': 'form-control'
+                    'class': 'form-control',
                 })
             i += 1
 
